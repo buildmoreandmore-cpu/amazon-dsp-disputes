@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertTriangle, CheckCircle, FileWarning, Users } from 'lucide-react'
+import { AlertTriangleIcon, CheckCircleIcon, FileWarningIcon, UsersIcon } from './Icons'
 import type { DisputeSummary } from '@/types'
 
 interface StatsDashboardProps {
@@ -12,38 +12,6 @@ export function StatsDashboard({ summary }: StatsDashboardProps) {
     ? ((summary.autoDisputedCount / summary.totalConcessions) * 100).toFixed(1)
     : '0.0'
 
-  const stats = [
-    {
-      label: 'Total Concessions',
-      value: summary.totalConcessions,
-      icon: FileWarning,
-      color: 'text-gray-600',
-      bgColor: 'bg-gray-100'
-    },
-    {
-      label: 'Impacts DSB',
-      value: summary.impactsDSBCount,
-      icon: AlertTriangle,
-      color: 'text-red-600',
-      bgColor: 'bg-red-100'
-    },
-    {
-      label: 'Auto-Disputed',
-      value: summary.autoDisputedCount,
-      subtext: `${autoRate}% rate`,
-      icon: CheckCircle,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100'
-    },
-    {
-      label: 'Manual Review',
-      value: summary.manualReviewCount,
-      icon: Users,
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-100'
-    }
-  ]
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -54,25 +22,54 @@ export function StatsDashboard({ summary }: StatsDashboardProps) {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white rounded-xl border border-gray-200 p-4"
-          >
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <stat.icon className={`w-5 h-5 ${stat.color}`} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-sm text-gray-500">{stat.label}</p>
-                {stat.subtext && (
-                  <p className="text-xs text-gray-400">{stat.subtext}</p>
-                )}
-              </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gray-100">
+              <FileWarningIcon className="w-5 h-5 text-gray-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{summary.totalConcessions}</p>
+              <p className="text-sm text-gray-500">Total Concessions</p>
             </div>
           </div>
-        ))}
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-red-100">
+              <AlertTriangleIcon className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{summary.impactsDSBCount}</p>
+              <p className="text-sm text-gray-500">Impacts DSB</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-green-100">
+              <CheckCircleIcon className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{summary.autoDisputedCount}</p>
+              <p className="text-sm text-gray-500">Auto-Disputed</p>
+              <p className="text-xs text-gray-400">{autoRate}% rate</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-amber-100">
+              <UsersIcon className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{summary.manualReviewCount}</p>
+              <p className="text-sm text-gray-500">Manual Review</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

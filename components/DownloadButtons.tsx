@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Download, FileText, Copy, Check } from 'lucide-react'
+import { DownloadIcon, FileTextIcon, CopyIcon, CheckIcon } from './Icons'
 
 interface DownloadButtonsProps {
   xlsxBase64: string
@@ -64,7 +64,7 @@ export function DownloadButtons({
           onClick={handleDownloadXLSX}
           className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
-          <Download className="w-5 h-5" />
+          <DownloadIcon className="w-5 h-5" />
           Download Dispute Spreadsheet
         </button>
 
@@ -72,7 +72,7 @@ export function DownloadButtons({
           onClick={handleDownloadMarkdown}
           className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
         >
-          <FileText className="w-5 h-5" />
+          <FileTextIcon className="w-5 h-5" />
           Download Summary (MD)
         </button>
 
@@ -82,12 +82,12 @@ export function DownloadButtons({
         >
           {copied ? (
             <>
-              <Check className="w-5 h-5 text-green-600" />
+              <CheckIcon className="w-5 h-5 text-green-600" />
               Copied!
             </>
           ) : (
             <>
-              <Copy className="w-5 h-5" />
+              <CopyIcon className="w-5 h-5" />
               Copy Summary
             </>
           )}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import { Upload, FileText, AlertCircle, Loader2 } from 'lucide-react'
+import { UploadIcon, FileTextIcon, AlertCircleIcon, LoaderIcon } from './Icons'
 import clsx from 'clsx'
 
 interface FileUploadProps {
@@ -68,13 +68,13 @@ export function FileUpload({ onFileSelect, isLoading, error }: FileUploadProps) 
         <div className="flex flex-col items-center justify-center text-center">
           {isLoading ? (
             <>
-              <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
+              <LoaderIcon className="w-12 h-12 text-blue-500 animate-spin mb-4" />
               <p className="text-lg font-medium text-gray-700">Processing disputes...</p>
               <p className="text-sm text-gray-500 mt-1">This may take a few moments</p>
             </>
           ) : selectedFile ? (
             <>
-              <FileText className="w-12 h-12 text-green-500 mb-4" />
+              <FileTextIcon className="w-12 h-12 text-green-500 mb-4" />
               <p className="text-lg font-medium text-gray-700">{selectedFile.name}</p>
               <p className="text-sm text-gray-500 mt-1">
                 {(selectedFile.size / 1024).toFixed(1)} KB
@@ -83,7 +83,7 @@ export function FileUpload({ onFileSelect, isLoading, error }: FileUploadProps) 
             </>
           ) : (
             <>
-              <Upload className="w-12 h-12 text-gray-400 mb-4" />
+              <UploadIcon className="w-12 h-12 text-gray-400 mb-4" />
               <p className="text-lg font-medium text-gray-700">
                 Drop your CSV file here
               </p>
@@ -100,7 +100,7 @@ export function FileUpload({ onFileSelect, isLoading, error }: FileUploadProps) 
 
       {error && (
         <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <AlertCircleIcon className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-red-800">Error processing file</p>
             <p className="text-sm text-red-600 mt-1">{error}</p>

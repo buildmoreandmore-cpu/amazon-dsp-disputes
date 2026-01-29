@@ -5,8 +5,8 @@ import { FileUpload } from '@/components/FileUpload'
 import { StatsDashboard } from '@/components/StatsDashboard'
 import { DisputePreview } from '@/components/DisputePreview'
 import { DownloadButtons } from '@/components/DownloadButtons'
+import { TruckIcon } from '@/components/Icons'
 import type { ApiResponse, DisputeResult, DisputeSummary } from '@/types'
-import { Truck } from 'lucide-react'
 
 type Step = 'upload' | 'preview' | 'download'
 
@@ -69,7 +69,7 @@ export default function Home() {
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-2">
-            <Truck className="w-8 h-8 text-blue-600" />
+            <TruckIcon className="w-8 h-8 text-blue-600" />
             <h1 className="text-3xl font-bold text-gray-900">
               DSP Dispute Automation
             </h1>

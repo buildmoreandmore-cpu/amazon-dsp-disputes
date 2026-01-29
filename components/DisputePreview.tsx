@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import clsx from 'clsx'
 import type { DisputeResult } from '@/types'
 
@@ -47,7 +47,7 @@ export function DisputePreview({ disputes }: DisputePreviewProps) {
               disabled={currentPage === 1}
               className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeftIcon className="w-5 h-5" />
             </button>
             <span className="text-sm text-gray-600">
               Page {currentPage} of {totalPages}
@@ -57,7 +57,7 @@ export function DisputePreview({ disputes }: DisputePreviewProps) {
               disabled={currentPage === totalPages}
               className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRightIcon className="w-5 h-5" />
             </button>
           </div>
         )}
