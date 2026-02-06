@@ -3,15 +3,31 @@
 import { useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from './Icons'
 import clsx from 'clsx'
-import type { DisputeResult } from '@/types'
+import type { DisputeResult, FeedbackDispute, RTSDispute, DisputeCategory } from '@/types'
+
+type AnyDispute = DisputeResult | FeedbackDispute | RTSDispute
 
 interface DisputePreviewProps {
-  disputes: DisputeResult[]
+  disputes: AnyDispute[]
+  category: DisputeCategory
 }
 
 const ITEMS_PER_PAGE = 10
 
-export function DisputePreview({ disputes }: DisputePreviewProps) {
+// Type guards
+function isConcessionDispute(dispute: AnyDispute): dispute is DisputeResult {
+  return 'impactsDSB' in dispute
+}
+
+function isFeedbackDispute(dispute: AnyDispute): dispute is FeedbackDispute {
+  return 'feedbackType' in dispute
+}
+
+function isRTSDispute(dispute: AnyDispute): dispute is RTSDispute {
+  return 'rtsCode' in dispute
+}
+
+export function DisputePreview({ disputes, category }: DisputePreviewProps) {
   const [currentPage, setCurrentPage] = useState(1)
 
   const totalPages = Math.ceil(disputes.length / ITEMS_PER_PAGE)
@@ -65,71 +81,242 @@ export function DisputePreview({ disputes }: DisputePreviewProps) {
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Priority
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tracking ID
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Driver
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  DSB
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md">
-                  Reason
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {currentDisputes.map((dispute, idx) => (
-                <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <span
-                      className={clsx(
-                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                        getPriorityColor(dispute.priority)
-                      )}
-                    >
-                      Tier {dispute.priority}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-mono">
-                    {dispute.trackingId}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-                    <div className="truncate max-w-[150px]" title={dispute.driver}>
-                      {dispute.driver}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-                    {dispute.deliveryType}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm">
-                    {dispute.impactsDSB ? (
-                      <span className="text-red-600 font-medium">Yes</span>
-                    ) : (
-                      <span className="text-gray-400">No</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    <div className="max-w-md truncate" title={dispute.reason}>
-                      {dispute.reason}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {category === 'concessions' && (
+            <ConcessionTable
+              disputes={currentDisputes.filter(isConcessionDispute)}
+              getPriorityColor={getPriorityColor}
+            />
+          )}
+          {category === 'feedback' && (
+            <FeedbackTable
+              disputes={currentDisputes.filter(isFeedbackDispute)}
+              getPriorityColor={getPriorityColor}
+            />
+          )}
+          {category === 'rts' && (
+            <RTSTable
+              disputes={currentDisputes.filter(isRTSDispute)}
+              getPriorityColor={getPriorityColor}
+            />
+          )}
         </div>
       </div>
     </div>
+  )
+}
+
+function ConcessionTable({
+  disputes,
+  getPriorityColor
+}: {
+  disputes: DisputeResult[]
+  getPriorityColor: (p: number) => string
+}) {
+  return (
+    <table className="w-full">
+      <thead>
+        <tr className="bg-gray-50 border-b border-gray-200">
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Priority
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Tracking ID
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Driver
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Type
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            DSB
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md">
+            Reason
+          </th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        {disputes.map((dispute, idx) => (
+          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-gray-50">
+            <td className="px-4 py-3 whitespace-nowrap">
+              <span
+                className={clsx(
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  getPriorityColor(dispute.priority)
+                )}
+              >
+                Tier {dispute.priority}
+              </span>
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-mono">
+              {dispute.trackingId}
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              <div className="truncate max-w-[150px]" title={dispute.driver}>
+                {dispute.driver}
+              </div>
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              {dispute.deliveryType}
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm">
+              {dispute.impactsDSB ? (
+                <span className="text-red-600 font-medium">Yes</span>
+              ) : (
+                <span className="text-gray-400">No</span>
+              )}
+            </td>
+            <td className="px-4 py-3 text-sm text-gray-600">
+              <div className="max-w-md truncate" title={dispute.reason}>
+                {dispute.reason}
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+function FeedbackTable({
+  disputes,
+  getPriorityColor
+}: {
+  disputes: FeedbackDispute[]
+  getPriorityColor: (p: number) => string
+}) {
+  return (
+    <table className="w-full">
+      <thead>
+        <tr className="bg-gray-50 border-b border-gray-200">
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Priority
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Tracking ID
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Driver
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Feedback Type
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Details
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md">
+            Dispute Reason
+          </th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        {disputes.map((dispute, idx) => (
+          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-gray-50">
+            <td className="px-4 py-3 whitespace-nowrap">
+              <span
+                className={clsx(
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  getPriorityColor(dispute.priority)
+                )}
+              >
+                Tier {dispute.priority}
+              </span>
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-mono">
+              {dispute.trackingId}
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              <div className="truncate max-w-[150px]" title={dispute.driver}>
+                {dispute.driver}
+              </div>
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              {dispute.feedbackType}
+            </td>
+            <td className="px-4 py-3 text-sm text-gray-600">
+              <div className="max-w-[200px] truncate" title={dispute.feedbackDetails}>
+                {dispute.feedbackDetails || '-'}
+              </div>
+            </td>
+            <td className="px-4 py-3 text-sm text-gray-600">
+              <div className="max-w-md truncate" title={dispute.reason}>
+                {dispute.reason}
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+function RTSTable({
+  disputes,
+  getPriorityColor
+}: {
+  disputes: RTSDispute[]
+  getPriorityColor: (p: number) => string
+}) {
+  return (
+    <table className="w-full">
+      <thead>
+        <tr className="bg-gray-50 border-b border-gray-200">
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Priority
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Tracking ID
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Driver
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            RTS Code
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Planned Date
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md">
+            Dispute Reason
+          </th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        {disputes.map((dispute, idx) => (
+          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-gray-50">
+            <td className="px-4 py-3 whitespace-nowrap">
+              <span
+                className={clsx(
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  getPriorityColor(dispute.priority)
+                )}
+              >
+                Tier {dispute.priority}
+              </span>
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-mono">
+              {dispute.trackingId}
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              <div className="truncate max-w-[150px]" title={dispute.driver}>
+                {dispute.driver}
+              </div>
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              {dispute.rtsCode}
+            </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+              {dispute.plannedDate}
+            </td>
+            <td className="px-4 py-3 text-sm text-gray-600">
+              <div className="max-w-md truncate" title={dispute.reason}>
+                {dispute.reason}
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 }

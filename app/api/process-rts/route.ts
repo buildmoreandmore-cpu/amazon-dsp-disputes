@@ -1,13 +1,12 @@
-// Legacy route - redirects to process-concessions for backwards compatibility
 import { NextRequest, NextResponse } from 'next/server'
-import { parseConcessionCSV, validateConcessionCSV } from '@/lib/parsers/concession-parser'
+import { parseRTSCSV, validateRTSCSV, filterDisputeableRTS } from '@/lib/parsers/rts-parser'
 import { extractStationAndWeek } from '@/lib/csv-parser'
-import { processConcessionDisputes, sortConcessionDisputes, buildConcessionSummary } from '@/lib/engines/concession-engine'
-import { generateConcessionXLSX, generateOutputFilename } from '@/lib/xlsx-generator'
-import { generateMarkdownSummary } from '@/lib/summary-generator'
-import type { ApiResponse } from '@/types'
+import { processRTSDisputes, sortRTSDisputes, buildRTSSummary } from '@/lib/engines/rts-engine'
+import { generateRTSXLSX, generateOutputFilename } from '@/lib/xlsx-generator'
+import { generateRTSMarkdownSummary } from '@/lib/summary-generator'
+import type { RTSApiResponse } from '@/types'
 
-export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse>> {
+export async function POST(request: NextRequest): Promise<NextResponse<RTSApiResponse>> {
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
@@ -30,7 +29,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 
     let rows
     try {
-      rows = parseConcessionCSV(csvContent)
+      rows = parseRTSCSV(csvContent)
     } catch (parseError) {
       return NextResponse.json(
         { success: false, error: 'Failed to parse CSV file. Please check the format.' },
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       )
     }
 
-    const validation = validateConcessionCSV(rows)
+    const validation = validateRTSCSV(rows)
     if (!validation.valid) {
       return NextResponse.json(
         { success: false, error: validation.errors.join('; ') },
@@ -48,15 +47,18 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 
     const { station, week } = extractStationAndWeek(file.name)
 
-    const disputes = processConcessionDisputes(rows)
-    const sortedDisputes = sortConcessionDisputes(disputes)
+    // Filter to only disputable rows (Impact DCR = Y, No Exemption Applied)
+    const disputeableRows = filterDisputeableRTS(rows)
 
-    const summary = buildConcessionSummary(rows, sortedDisputes, station, week)
+    const disputes = processRTSDisputes(disputeableRows)
+    const sortedDisputes = sortRTSDisputes(disputes)
 
-    const outputFilename = generateOutputFilename('concessions', station, week)
-    const xlsxBase64 = generateConcessionXLSX(sortedDisputes)
+    const summary = buildRTSSummary(rows, disputeableRows, sortedDisputes, station, week)
 
-    const markdownSummary = generateMarkdownSummary(summary)
+    const outputFilename = generateOutputFilename('rts', station, week)
+    const xlsxBase64 = generateRTSXLSX(sortedDisputes)
+
+    const markdownSummary = generateRTSMarkdownSummary(summary)
 
     return NextResponse.json({
       success: true,
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       }
     })
   } catch (error) {
-    console.error('Error processing disputes:', error)
+    console.error('Error processing RTS disputes:', error)
     return NextResponse.json(
       { success: false, error: 'An unexpected error occurred while processing the file.' },
       { status: 500 }

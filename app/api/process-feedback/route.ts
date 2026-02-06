@@ -1,13 +1,12 @@
-// Legacy route - redirects to process-concessions for backwards compatibility
 import { NextRequest, NextResponse } from 'next/server'
-import { parseConcessionCSV, validateConcessionCSV } from '@/lib/parsers/concession-parser'
+import { parseFeedbackCSV, validateFeedbackCSV } from '@/lib/parsers/feedback-parser'
 import { extractStationAndWeek } from '@/lib/csv-parser'
-import { processConcessionDisputes, sortConcessionDisputes, buildConcessionSummary } from '@/lib/engines/concession-engine'
-import { generateConcessionXLSX, generateOutputFilename } from '@/lib/xlsx-generator'
-import { generateMarkdownSummary } from '@/lib/summary-generator'
-import type { ApiResponse } from '@/types'
+import { processFeedbackDisputes, sortFeedbackDisputes, buildFeedbackSummary } from '@/lib/engines/feedback-engine'
+import { generateFeedbackXLSX, generateOutputFilename } from '@/lib/xlsx-generator'
+import { generateFeedbackMarkdownSummary } from '@/lib/summary-generator'
+import type { FeedbackApiResponse } from '@/types'
 
-export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse>> {
+export async function POST(request: NextRequest): Promise<NextResponse<FeedbackApiResponse>> {
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
@@ -30,7 +29,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 
     let rows
     try {
-      rows = parseConcessionCSV(csvContent)
+      rows = parseFeedbackCSV(csvContent)
     } catch (parseError) {
       return NextResponse.json(
         { success: false, error: 'Failed to parse CSV file. Please check the format.' },
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       )
     }
 
-    const validation = validateConcessionCSV(rows)
+    const validation = validateFeedbackCSV(rows)
     if (!validation.valid) {
       return NextResponse.json(
         { success: false, error: validation.errors.join('; ') },
@@ -48,15 +47,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 
     const { station, week } = extractStationAndWeek(file.name)
 
-    const disputes = processConcessionDisputes(rows)
-    const sortedDisputes = sortConcessionDisputes(disputes)
+    const disputes = processFeedbackDisputes(rows)
+    const sortedDisputes = sortFeedbackDisputes(disputes)
 
-    const summary = buildConcessionSummary(rows, sortedDisputes, station, week)
+    const summary = buildFeedbackSummary(rows, sortedDisputes, station, week)
 
-    const outputFilename = generateOutputFilename('concessions', station, week)
-    const xlsxBase64 = generateConcessionXLSX(sortedDisputes)
+    const outputFilename = generateOutputFilename('feedback', station, week)
+    const xlsxBase64 = generateFeedbackXLSX(sortedDisputes)
 
-    const markdownSummary = generateMarkdownSummary(summary)
+    const markdownSummary = generateFeedbackMarkdownSummary(summary)
 
     return NextResponse.json({
       success: true,
@@ -69,7 +68,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       }
     })
   } catch (error) {
-    console.error('Error processing disputes:', error)
+    console.error('Error processing feedback disputes:', error)
     return NextResponse.json(
       { success: false, error: 'An unexpected error occurred while processing the file.' },
       { status: 500 }

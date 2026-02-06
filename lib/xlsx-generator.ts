@@ -1,7 +1,8 @@
 import * as XLSX from 'xlsx'
-import type { DisputeResult } from '@/types'
+import type { DisputeResult, FeedbackDispute, RTSDispute, DisputeCategory } from '@/types'
 
-interface XLSXRow {
+// Concession XLSX row format
+interface ConcessionXLSXRow {
   'Tracking ID': string
   'Reason': string
   'Priority': number
@@ -14,9 +15,29 @@ interface XLSXRow {
   'Notes': string
 }
 
-export function generateXLSX(disputes: DisputeResult[], filename: string): string {
-  // Convert disputes to XLSX rows
-  const rows: XLSXRow[] = disputes.map(d => ({
+// Feedback XLSX row format
+interface FeedbackXLSXRow {
+  'Tracking ID': string
+  'Driver': string
+  'Feedback Type': string
+  'Feedback Details': string
+  'Dispute Reason': string
+  'Priority': number
+  'Delivery Date': string
+}
+
+// RTS XLSX row format
+interface RTSXLSXRow {
+  'Tracking ID': string
+  'Driver': string
+  'RTS Code': string
+  'Dispute Reason': string
+  'Priority': number
+  'Planned Date': string
+}
+
+export function generateConcessionXLSX(disputes: DisputeResult[]): string {
+  const rows: ConcessionXLSXRow[] = disputes.map(d => ({
     'Tracking ID': d.trackingId,
     'Reason': d.reason,
     'Priority': d.priority,
@@ -29,12 +50,10 @@ export function generateXLSX(disputes: DisputeResult[], filename: string): strin
     'Notes': d.notes
   }))
 
-  // Create workbook and worksheet
   const workbook = XLSX.utils.book_new()
   const worksheet = XLSX.utils.json_to_sheet(rows)
 
-  // Set column widths
-  const columnWidths = [
+  worksheet['!cols'] = [
     { wch: 20 },  // Tracking ID
     { wch: 80 },  // Reason
     { wch: 8 },   // Priority
@@ -46,18 +65,81 @@ export function generateXLSX(disputes: DisputeResult[], filename: string): strin
     { wch: 10 },  // Has POD
     { wch: 40 }   // Notes
   ]
-  worksheet['!cols'] = columnWidths
 
-  // Add worksheet to workbook
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Disputes')
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Concession Disputes')
 
-  // Generate buffer and convert to base64
   const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
-  const base64 = Buffer.from(buffer).toString('base64')
-
-  return base64
+  return Buffer.from(buffer).toString('base64')
 }
 
-export function generateOutputFilename(station: string, week: string): string {
-  return `disputes_${station}_${week}.xlsx`
+export function generateFeedbackXLSX(disputes: FeedbackDispute[]): string {
+  const rows: FeedbackXLSXRow[] = disputes.map(d => ({
+    'Tracking ID': d.trackingId,
+    'Driver': d.driver,
+    'Feedback Type': d.feedbackType,
+    'Feedback Details': d.feedbackDetails,
+    'Dispute Reason': d.reason,
+    'Priority': d.priority,
+    'Delivery Date': d.deliveryDate
+  }))
+
+  const workbook = XLSX.utils.book_new()
+  const worksheet = XLSX.utils.json_to_sheet(rows)
+
+  worksheet['!cols'] = [
+    { wch: 20 },  // Tracking ID
+    { wch: 25 },  // Driver
+    { wch: 22 },  // Feedback Type
+    { wch: 50 },  // Feedback Details
+    { wch: 80 },  // Dispute Reason
+    { wch: 8 },   // Priority
+    { wch: 14 }   // Delivery Date
+  ]
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Feedback Disputes')
+
+  const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+  return Buffer.from(buffer).toString('base64')
+}
+
+export function generateRTSXLSX(disputes: RTSDispute[]): string {
+  const rows: RTSXLSXRow[] = disputes.map(d => ({
+    'Tracking ID': d.trackingId,
+    'Driver': d.driver,
+    'RTS Code': d.rtsCode,
+    'Dispute Reason': d.reason,
+    'Priority': d.priority,
+    'Planned Date': d.plannedDate
+  }))
+
+  const workbook = XLSX.utils.book_new()
+  const worksheet = XLSX.utils.json_to_sheet(rows)
+
+  worksheet['!cols'] = [
+    { wch: 20 },  // Tracking ID
+    { wch: 25 },  // Driver
+    { wch: 22 },  // RTS Code
+    { wch: 80 },  // Dispute Reason
+    { wch: 8 },   // Priority
+    { wch: 14 }   // Planned Date
+  ]
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'RTS Disputes')
+
+  const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+  return Buffer.from(buffer).toString('base64')
+}
+
+// Legacy function for backwards compatibility
+export function generateXLSX(disputes: DisputeResult[], filename: string): string {
+  return generateConcessionXLSX(disputes)
+}
+
+export function generateOutputFilename(category: DisputeCategory, station: string, week: string): string {
+  const prefixes: Record<DisputeCategory, string> = {
+    concessions: 'concession_disputes',
+    feedback: 'customer_feedback_disputes',
+    rts: 'dcr_rts_disputes'
+  }
+  return `${prefixes[category]}_${station}_${week}.xlsx`
 }

@@ -1,4 +1,3 @@
-// Legacy route - redirects to process-concessions for backwards compatibility
 import { NextRequest, NextResponse } from 'next/server'
 import { parseConcessionCSV, validateConcessionCSV } from '@/lib/parsers/concession-parser'
 import { extractStationAndWeek } from '@/lib/csv-parser'
@@ -69,7 +68,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       }
     })
   } catch (error) {
-    console.error('Error processing disputes:', error)
+    console.error('Error processing concession disputes:', error)
     return NextResponse.json(
       { success: false, error: 'An unexpected error occurred while processing the file.' },
       { status: 500 }

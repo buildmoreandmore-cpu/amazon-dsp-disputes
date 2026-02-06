@@ -1,3 +1,10 @@
+// Re-export all types from separate files
+export * from './feedback'
+export * from './rts'
+
+// Dispute category type
+export type DisputeCategory = 'concessions' | 'feedback' | 'rts'
+
 export interface ConcessionRow {
   deliveryAssociateName: string
   deliveryAssociate: string

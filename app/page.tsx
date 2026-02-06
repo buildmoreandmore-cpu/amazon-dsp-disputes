@@ -5,20 +5,60 @@ import { FileUpload } from '@/components/FileUpload'
 import { StatsDashboard } from '@/components/StatsDashboard'
 import { DisputePreview } from '@/components/DisputePreview'
 import { DownloadButtons } from '@/components/DownloadButtons'
+import { CategorySelector } from '@/components/CategorySelector'
 import { TruckIcon } from '@/components/Icons'
-import type { ApiResponse, DisputeResult, DisputeSummary } from '@/types'
+import type {
+  DisputeCategory,
+  DisputeResult,
+  DisputeSummary,
+  FeedbackDispute,
+  FeedbackSummary,
+  RTSDispute,
+  RTSSummary
+} from '@/types'
 
-type Step = 'upload' | 'preview' | 'download'
+type Step = 'category' | 'upload' | 'preview' | 'download'
+
+// Union type for all dispute types
+type AnyDispute = DisputeResult | FeedbackDispute | RTSDispute
+type AnySummary = DisputeSummary | FeedbackSummary | RTSSummary
 
 export default function Home() {
-  const [step, setStep] = useState<Step>('upload')
+  const [step, setStep] = useState<Step>('category')
+  const [category, setCategory] = useState<DisputeCategory>('concessions')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [disputes, setDisputes] = useState<DisputeResult[]>([])
-  const [summary, setSummary] = useState<DisputeSummary | null>(null)
+  const [disputes, setDisputes] = useState<AnyDispute[]>([])
+  const [summary, setSummary] = useState<AnySummary | null>(null)
   const [xlsxBase64, setXlsxBase64] = useState<string>('')
   const [markdownSummary, setMarkdownSummary] = useState<string>('')
   const [outputFilename, setOutputFilename] = useState<string>('')
+
+  const getApiEndpoint = (cat: DisputeCategory): string => {
+    const endpoints: Record<DisputeCategory, string> = {
+      concessions: '/api/process-concessions',
+      feedback: '/api/process-feedback',
+      rts: '/api/process-rts'
+    }
+    return endpoints[cat]
+  }
+
+  const getCategoryLabel = (cat: DisputeCategory): string => {
+    const labels: Record<DisputeCategory, string> = {
+      concessions: 'Concessions (DSB)',
+      feedback: 'Customer Feedback (CDF)',
+      rts: 'Delivery Completion (DCR/RTS)'
+    }
+    return labels[cat]
+  }
+
+  const handleCategorySelect = (cat: DisputeCategory) => {
+    setCategory(cat)
+  }
+
+  const handleContinueToUpload = () => {
+    setStep('upload')
+  }
 
   const handleFileSelect = async (file: File) => {
     setIsLoading(true)
@@ -28,12 +68,12 @@ export default function Home() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await fetch('/api/process-disputes', {
+      const response = await fetch(getApiEndpoint(category), {
         method: 'POST',
         body: formData
       })
 
-      const result: ApiResponse = await response.json()
+      const result = await response.json()
 
       if (!result.success || !result.data) {
         setError(result.error || 'An error occurred while processing the file')
@@ -55,6 +95,16 @@ export default function Home() {
   }
 
   const handleReset = () => {
+    setStep('category')
+    setDisputes([])
+    setSummary(null)
+    setXlsxBase64('')
+    setMarkdownSummary('')
+    setOutputFilename('')
+    setError(null)
+  }
+
+  const handleBackToUpload = () => {
     setStep('upload')
     setDisputes([])
     setSummary(null)
@@ -75,20 +125,70 @@ export default function Home() {
             </h1>
           </div>
           <p className="text-gray-600">
-            Upload your Amazon concession CSV to generate ready-to-submit dispute spreadsheets
+            Process Amazon DSP dispute files for Concessions, Customer Feedback, and DCR/RTS
           </p>
         </header>
 
         <div className="flex items-center justify-center gap-4 mb-8">
-          <StepIndicator step={1} label="Upload" active={step === 'upload'} completed={step !== 'upload'} />
+          <StepIndicator
+            step={1}
+            label="Category"
+            active={step === 'category'}
+            completed={step !== 'category'}
+          />
           <div className="w-8 h-0.5 bg-gray-300" />
-          <StepIndicator step={2} label="Review" active={step === 'preview'} completed={step === 'download'} />
+          <StepIndicator
+            step={2}
+            label="Upload"
+            active={step === 'upload'}
+            completed={step === 'preview' || step === 'download'}
+          />
           <div className="w-8 h-0.5 bg-gray-300" />
-          <StepIndicator step={3} label="Download" active={step === 'download'} completed={false} />
+          <StepIndicator
+            step={3}
+            label="Review"
+            active={step === 'preview'}
+            completed={step === 'download'}
+          />
+          <div className="w-8 h-0.5 bg-gray-300" />
+          <StepIndicator
+            step={4}
+            label="Download"
+            active={step === 'download'}
+            completed={false}
+          />
         </div>
 
+        {step === 'category' && (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <CategorySelector
+              selected={category}
+              onChange={handleCategorySelect}
+            />
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={handleContinueToUpload}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Continue to Upload
+              </button>
+            </div>
+          </div>
+        )}
+
         {step === 'upload' && (
-          <div className="max-w-xl mx-auto">
+          <div className="max-w-xl mx-auto space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+              <p className="text-sm text-blue-800">
+                Processing: <span className="font-semibold">{getCategoryLabel(category)}</span>
+              </p>
+              <button
+                onClick={() => setStep('category')}
+                className="text-sm text-blue-600 hover:text-blue-800 underline mt-1"
+              >
+                Change category
+              </button>
+            </div>
             <FileUpload
               onFileSelect={handleFileSelect}
               isLoading={isLoading}
@@ -99,12 +199,17 @@ export default function Home() {
 
         {step === 'preview' && summary && (
           <div className="space-y-8">
-            <StatsDashboard summary={summary} />
-            <DisputePreview disputes={disputes} />
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+              <p className="text-sm text-blue-800">
+                <span className="font-semibold">{getCategoryLabel(category)}</span>
+              </p>
+            </div>
+            <StatsDashboard summary={summary} category={category} />
+            <DisputePreview disputes={disputes} category={category} />
 
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
               <button
-                onClick={handleReset}
+                onClick={handleBackToUpload}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
                 Upload a different file
@@ -121,7 +226,12 @@ export default function Home() {
 
         {step === 'download' && summary && (
           <div className="space-y-8">
-            <StatsDashboard summary={summary} />
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+              <p className="text-sm text-blue-800">
+                <span className="font-semibold">{getCategoryLabel(category)}</span>
+              </p>
+            </div>
+            <StatsDashboard summary={summary} category={category} />
             <DownloadButtons
               xlsxBase64={xlsxBase64}
               markdownSummary={markdownSummary}
