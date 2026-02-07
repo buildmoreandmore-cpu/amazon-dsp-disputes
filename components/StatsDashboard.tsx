@@ -208,8 +208,8 @@ function FeedbackDashboard({ summary }: { summary: FeedbackSummary }) {
 
 function RTSDashboard({ summary }: { summary: RTSSummary }) {
   const disputeableCount = summary.autoDisputedCount + summary.manualReviewCount
-  const autoRate = disputeableCount > 0
-    ? ((summary.autoDisputedCount / disputeableCount) * 100).toFixed(1)
+  const highConfidenceRate = disputeableCount > 0
+    ? ((summary.highConfidenceCount / disputeableCount) * 100).toFixed(1)
     : '0.0'
 
   return (
@@ -220,6 +220,42 @@ function RTSDashboard({ summary }: { summary: RTSSummary }) {
           {summary.station} | {summary.week}
         </div>
       </div>
+
+      {/* High Confidence Alert Banner */}
+      {summary.highConfidenceCount > 0 && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <CheckCircleIcon className="w-5 h-5 text-green-600 mt-0.5" />
+            <div>
+              <h3 className="text-sm font-semibold text-green-800">
+                {summary.highConfidenceCount} High-Confidence Disputes Ready
+              </h3>
+              <p className="text-sm text-green-700 mt-1">
+                These are &quot;Package Not On Van&quot; cases that Amazon typically approves.
+                Based on historical data, these have the highest approval rate.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Low Confidence Warning */}
+      {summary.lowConfidenceCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangleIcon className="w-5 h-5 text-amber-600 mt-0.5" />
+            <div>
+              <h3 className="text-sm font-semibold text-amber-800">
+                {summary.lowConfidenceCount} Low-Confidence (Not Recommended)
+              </h3>
+              <p className="text-sm text-amber-700 mt-1">
+                These are valid RTS scenarios (Business Closed, Locker Full, OODT, etc.) that Amazon
+                typically rejects. Submitting these disputes has a less than 1% approval rate.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <StatCard
@@ -243,40 +279,61 @@ function RTSDashboard({ summary }: { summary: RTSSummary }) {
         <StatCard
           icon={<CheckCircleIcon className="w-5 h-5 text-green-600" />}
           iconBg="bg-green-100"
-          value={summary.autoDisputedCount}
-          label="Auto-Disputed"
-          subtext={`${autoRate}% rate`}
+          value={summary.highConfidenceCount}
+          label="High Confidence"
+          subtext="Recommended"
         />
         <StatCard
           icon={<UsersIcon className="w-5 h-5 text-amber-600" />}
           iconBg="bg-amber-100"
-          value={summary.manualReviewCount}
-          label="Manual Review"
+          value={summary.lowConfidenceCount}
+          label="Low Confidence"
+          subtext="Not Recommended"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Priority Tiers</h3>
+        {/* High Confidence Breakdown */}
+        <div className="bg-white rounded-xl border border-green-200 p-4">
+          <h3 className="text-sm font-medium text-green-700 mb-3 flex items-center gap-2">
+            <CheckCircleIcon className="w-4 h-4" />
+            High-Confidence RTS Codes (Submit These)
+          </h3>
           <div className="space-y-2">
-            <TierRow label="Tier 1 (Business Closed / No Locker)" value={summary.tierCounts.tier1} color="text-red-600" />
-            <TierRow label="Tier 2 (Out of Delivery Time)" value={summary.tierCounts.tier2} color="text-green-600" />
-            <TierRow label="Tier 3 (Manual Review)" value={summary.tierCounts.tier3} color="text-amber-600" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">RTS Codes</h3>
-          <div className="space-y-2">
-            {Object.entries(summary.rtsCodeBreakdown)
+            {Object.entries(summary.highConfidenceBreakdown || {})
               .sort(([, a], [, b]) => b - a)
               .slice(0, 5)
               .map(([code, count]) => (
                 <div key={code} className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">{code}</span>
-                  <span className="text-sm font-medium text-gray-900">{count}</span>
+                  <span className="text-sm font-medium text-green-600">{count}</span>
                 </div>
               ))}
+            {Object.keys(summary.highConfidenceBreakdown || {}).length === 0 && (
+              <p className="text-sm text-gray-400 italic">No high-confidence cases found</p>
+            )}
+          </div>
+        </div>
+
+        {/* Low Confidence Breakdown */}
+        <div className="bg-white rounded-xl border border-amber-200 p-4">
+          <h3 className="text-sm font-medium text-amber-700 mb-3 flex items-center gap-2">
+            <AlertTriangleIcon className="w-4 h-4" />
+            Low-Confidence RTS Codes (Skip These)
+          </h3>
+          <div className="space-y-2">
+            {Object.entries(summary.lowConfidenceBreakdown || {})
+              .sort(([, a], [, b]) => b - a)
+              .slice(0, 5)
+              .map(([code, count]) => (
+                <div key={code} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">{code}</span>
+                  <span className="text-sm font-medium text-amber-600">{count}</span>
+                </div>
+              ))}
+            {Object.keys(summary.lowConfidenceBreakdown || {}).length === 0 && (
+              <p className="text-sm text-gray-400 italic">No low-confidence cases found</p>
+            )}
           </div>
         </div>
 

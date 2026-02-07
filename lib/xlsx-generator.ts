@@ -31,8 +31,8 @@ interface RTSXLSXRow {
   'Tracking ID': string
   'Driver': string
   'RTS Code': string
+  'Confidence': string
   'Dispute Reason': string
-  'Priority': number
   'Planned Date': string
 }
 
@@ -103,12 +103,19 @@ export function generateFeedbackXLSX(disputes: FeedbackDispute[]): string {
 }
 
 export function generateRTSXLSX(disputes: RTSDispute[]): string {
-  const rows: RTSXLSXRow[] = disputes.map(d => ({
+  // Separate high-confidence (first) from low-confidence disputes
+  const sortedDisputes = [...disputes].sort((a, b) => {
+    if (a.confidence === 'high' && b.confidence === 'low') return -1
+    if (a.confidence === 'low' && b.confidence === 'high') return 1
+    return 0
+  })
+
+  const rows: RTSXLSXRow[] = sortedDisputes.map(d => ({
     'Tracking ID': d.trackingId,
     'Driver': d.driver,
     'RTS Code': d.rtsCode,
+    'Confidence': d.confidence === 'high' ? 'HIGH - Submit' : 'LOW - Skip',
     'Dispute Reason': d.reason,
-    'Priority': d.priority,
     'Planned Date': d.plannedDate
   }))
 
@@ -119,8 +126,8 @@ export function generateRTSXLSX(disputes: RTSDispute[]): string {
     { wch: 20 },  // Tracking ID
     { wch: 25 },  // Driver
     { wch: 22 },  // RTS Code
+    { wch: 14 },  // Confidence
     { wch: 80 },  // Dispute Reason
-    { wch: 8 },   // Priority
     { wch: 14 }   // Planned Date
   ]
 

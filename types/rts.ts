@@ -19,6 +19,16 @@ export interface RTSDispute {
   priority: 1 | 2 | 3
   plannedDate: string
   requiresManualReview: boolean
+  confidence: 'high' | 'low'
+}
+
+export interface RTSFilteredItem {
+  trackingId: string
+  driver: string
+  driverId: string
+  rtsCode: string
+  plannedDate: string
+  skipReason: string
 }
 
 export interface RTSSummary {
@@ -27,12 +37,16 @@ export interface RTSSummary {
   alreadyExemptedCount: number
   autoDisputedCount: number
   manualReviewCount: number
+  highConfidenceCount: number
+  lowConfidenceCount: number
   tierCounts: {
     tier1: number
     tier2: number
     tier3: number
   }
   rtsCodeBreakdown: Record<string, number>
+  highConfidenceBreakdown: Record<string, number>
+  lowConfidenceBreakdown: Record<string, number>
   repeatDrivers: RTSRepeatDriver[]
   station: string
   week: string
