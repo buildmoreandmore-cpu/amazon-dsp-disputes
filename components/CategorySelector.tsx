@@ -26,7 +26,7 @@ const categories: { id: DisputeCategory; name: string; description: string; file
     id: 'feedback',
     name: 'Customer Feedback (CDF)',
     description: 'Dispute negative customer delivery feedback',
-    filePattern: 'DSP_Customer_Delivery_Feedback_negative_*.csv',
+    filePattern: '*_Feedback_negative_*.csv',
     color: 'blue',
     icon: (
       <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -83,7 +83,7 @@ export function CategorySelector({ selected, onChange, disabled }: CategorySelec
             onClick={() => onChange(category.id)}
             disabled={disabled}
             className={`
-              relative p-6 rounded-2xl border-2 text-left transition-all
+              relative p-6 rounded-2xl border-2 text-left transition-all overflow-hidden
               ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-neutral-600'}
               ${isSelected
                 ? `border-neutral-500 bg-neutral-900`
@@ -97,14 +97,14 @@ export function CategorySelector({ selected, onChange, disabled }: CategorySelec
               }`}>
                 {category.icon}
               </div>
-              <div>
+              <div className="min-w-0">
                 <h3 className={`font-semibold text-base ${isSelected ? 'text-white' : 'text-neutral-200'}`}>
                   {category.name}
                 </h3>
                 <p className="text-sm text-neutral-400 mt-1">
                   {category.description}
                 </p>
-                <code className="text-xs text-amber-400 bg-neutral-800 px-2 py-1 rounded mt-3 inline-block">
+                <code className="text-xs text-amber-400 bg-neutral-800 px-2 py-1 rounded mt-3 inline-block max-w-full truncate">
                   {category.filePattern}
                 </code>
               </div>

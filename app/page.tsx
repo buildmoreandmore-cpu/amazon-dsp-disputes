@@ -1,6 +1,29 @@
+'use client'
+
 import Link from 'next/link'
+import { useEffect, useRef } from 'react'
 
 export default function LandingPage() {
+  // Scroll animation observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in')
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+    )
+
+    document.querySelectorAll('.scroll-animate').forEach((el) => {
+      observer.observe(el)
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div className="min-h-screen bg-neutral-950 text-white overflow-hidden">
       {/* Dot Grid Background */}
@@ -45,23 +68,23 @@ export default function LandingPage() {
       <section className="relative z-10 min-h-[calc(100vh-88px)] flex items-center px-6 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center w-full max-w-7xl mx-auto">
           {/* Left: Headline */}
-          <div>
+          <div className="animate-fade-in-up">
             <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[0.95] tracking-tight">
               Stop losing money on unfair disputes.
             </h1>
-            <p className="text-neutral-400 text-lg sm:text-xl mt-8 max-w-lg leading-relaxed">
+            <p className="text-neutral-400 text-lg sm:text-xl mt-8 max-w-lg leading-relaxed animate-fade-in-up animation-delay-200">
               Automate your DSP dispute process for Concessions, Customer Feedback, and DCR/RTS. Generate professional dispute files in seconds.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 mt-10">
+            <div className="flex flex-col sm:flex-row gap-4 mt-10 animate-fade-in-up animation-delay-400">
               <Link
                 href="/tool"
-                className="inline-flex justify-center px-8 py-4 bg-white text-black rounded-full font-semibold text-base hover:bg-neutral-200 transition-colors"
+                className="inline-flex justify-center px-8 py-4 bg-white text-black rounded-full font-semibold text-base hover:bg-neutral-200 transition-all hover:scale-105 hover:shadow-lg hover:shadow-white/10 active:scale-95"
               >
                 Start Processing Disputes
               </Link>
               <a
                 href="#features"
-                className="inline-flex justify-center px-8 py-4 border border-neutral-700 text-white rounded-full font-semibold text-base hover:bg-neutral-900 transition-colors"
+                className="inline-flex justify-center px-8 py-4 border border-neutral-700 text-white rounded-full font-semibold text-base hover:bg-neutral-900 hover:border-neutral-500 transition-all hover:scale-105 active:scale-95"
               >
                 Learn More
               </a>
@@ -69,8 +92,8 @@ export default function LandingPage() {
           </div>
 
           {/* Right: Product Preview Card */}
-          <div className="relative">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl">
+          <div className="relative animate-fade-in-up animation-delay-300">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 shadow-2xl hover:border-neutral-700 transition-all duration-500 hover:shadow-amber-500/5">
               {/* Card Header */}
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center">
@@ -117,21 +140,11 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Mini Calendar Preview */}
+              {/* Action Button */}
               <div className="mt-6 pt-6 border-t border-neutral-800">
-                <div className="grid grid-cols-7 gap-2 text-center text-xs">
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-                    <div key={i} className="text-neutral-500 py-1">{day}</div>
-                  ))}
-                  {[null, null, null, null, null, null, 1, 2, 3, 4, 5, 6, 7, 8].map((date, i) => (
-                    <div
-                      key={i}
-                      className={`py-1 rounded ${date === 7 ? 'bg-white text-black font-semibold' : date ? 'text-neutral-400' : ''}`}
-                    >
-                      {date || ''}
-                    </div>
-                  ))}
-                </div>
+                <button className="w-full py-3 bg-white text-black rounded-xl font-semibold text-sm hover:bg-neutral-200 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                  Download Dispute Report
+                </button>
               </div>
             </div>
 
@@ -145,19 +158,19 @@ export default function LandingPage() {
       <section className="relative z-10 border-t border-b border-neutral-800 bg-neutral-900/50 backdrop-blur">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
+            <div className="scroll-animate opacity-0 translate-y-4 transition-all duration-700">
               <div className="text-4xl lg:text-5xl font-bold">3</div>
               <div className="text-neutral-400 text-sm mt-1">Dispute Types</div>
             </div>
-            <div>
+            <div className="scroll-animate opacity-0 translate-y-4 transition-all duration-700 delay-100">
               <div className="text-4xl lg:text-5xl font-bold">10x</div>
               <div className="text-neutral-400 text-sm mt-1">Faster Processing</div>
             </div>
-            <div>
+            <div className="scroll-animate opacity-0 translate-y-4 transition-all duration-700 delay-200">
               <div className="text-4xl lg:text-5xl font-bold">100%</div>
               <div className="text-neutral-400 text-sm mt-1">Free to Use</div>
             </div>
-            <div>
+            <div className="scroll-animate opacity-0 translate-y-4 transition-all duration-700 delay-300">
               <div className="text-4xl lg:text-5xl font-bold">4</div>
               <div className="text-neutral-400 text-sm mt-1">Simple Steps</div>
             </div>
@@ -168,7 +181,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section id="features" className="relative z-10 py-24 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          <div className="max-w-2xl mb-16">
+          <div className="max-w-2xl mb-16 scroll-animate">
             <h2 className="text-4xl sm:text-5xl font-bold leading-tight">
               Everything you need to fight back.
             </h2>
@@ -179,8 +192,8 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* Concessions */}
-            <div className="group bg-neutral-900 border border-neutral-800 rounded-2xl p-8 hover:border-neutral-700 transition-colors">
-              <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="scroll-animate group bg-neutral-900 border border-neutral-800 rounded-2xl p-8 hover:border-neutral-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-red-500/5">
+              <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -197,8 +210,8 @@ export default function LandingPage() {
             </div>
 
             {/* Feedback */}
-            <div className="group bg-neutral-900 border border-neutral-800 rounded-2xl p-8 hover:border-neutral-700 transition-colors">
-              <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="scroll-animate delay-100 group bg-neutral-900 border border-neutral-800 rounded-2xl p-8 hover:border-neutral-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/5">
+              <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <svg className="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
@@ -209,14 +222,14 @@ export default function LandingPage() {
               </p>
               <div className="mt-6 pt-6 border-t border-neutral-800">
                 <code className="text-sm text-amber-400 bg-neutral-800 px-3 py-1.5 rounded-full">
-                  DSP_Customer_Delivery_Feedback_*.csv
+                  DSP_Customer_Feedback_*.csv
                 </code>
               </div>
             </div>
 
             {/* DCR/RTS */}
-            <div className="group bg-neutral-900 border border-neutral-800 rounded-2xl p-8 hover:border-neutral-700 transition-colors">
-              <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div className="scroll-animate delay-200 group bg-neutral-900 border border-neutral-800 rounded-2xl p-8 hover:border-neutral-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/5">
+              <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                 <svg className="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -238,7 +251,7 @@ export default function LandingPage() {
       {/* How It Works */}
       <section id="how-it-works" className="relative z-10 py-24 px-6 lg:px-12 bg-neutral-900/50">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 scroll-animate">
             <h2 className="text-4xl sm:text-5xl font-bold">How it works.</h2>
             <p className="text-neutral-400 text-lg mt-4">
               From raw CSV to dispute-ready files in 4 simple steps.
@@ -267,9 +280,9 @@ export default function LandingPage() {
                 title: 'Download Files',
                 description: 'Get your XLSX dispute file and Markdown summary report.'
               }
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="text-6xl font-bold text-neutral-800 mb-4">{item.step}</div>
+            ].map((item, index) => (
+              <div key={item.step} className={`scroll-animate text-center hover:scale-105 transition-transform duration-300 ${index === 1 ? 'delay-100' : index === 2 ? 'delay-200' : index === 3 ? 'delay-300' : ''}`}>
+                <div className="text-6xl font-bold text-neutral-800 mb-4 group-hover:text-neutral-700 transition-colors">{item.step}</div>
                 <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                 <p className="text-neutral-400">{item.description}</p>
               </div>
