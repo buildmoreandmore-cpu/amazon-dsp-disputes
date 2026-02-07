@@ -47,69 +47,72 @@ function ConcessionDashboard({ summary }: { summary: DisputeSummary }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Concession Summary</h2>
-        <div className="text-sm text-gray-500">
+        <h2 className="text-lg font-semibold text-white">Concession Summary</h2>
+        <div className="text-sm text-neutral-400">
           {summary.station} | {summary.week}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard
-          icon={<FileWarningIcon className="w-5 h-5 text-gray-600" />}
-          iconBg="bg-gray-100"
+          icon={<FileWarningIcon className="w-5 h-5 text-neutral-400" />}
+          iconBg="bg-neutral-800"
           value={summary.totalConcessions}
           label="Total Concessions"
         />
         <StatCard
-          icon={<AlertTriangleIcon className="w-5 h-5 text-red-600" />}
-          iconBg="bg-red-100"
+          icon={<AlertTriangleIcon className="w-5 h-5 text-red-400" />}
+          iconBg="bg-red-500/10"
           value={summary.impactsDSBCount}
           label="Impacts DSB"
+          valueColor="text-red-400"
         />
         <StatCard
-          icon={<CheckCircleIcon className="w-5 h-5 text-green-600" />}
-          iconBg="bg-green-100"
+          icon={<CheckCircleIcon className="w-5 h-5 text-green-400" />}
+          iconBg="bg-green-500/10"
           value={summary.autoDisputedCount}
           label="Auto-Disputed"
           subtext={`${autoRate}% rate`}
+          valueColor="text-green-400"
         />
         <StatCard
-          icon={<UsersIcon className="w-5 h-5 text-amber-600" />}
-          iconBg="bg-amber-100"
+          icon={<UsersIcon className="w-5 h-5 text-amber-400" />}
+          iconBg="bg-amber-500/10"
           value={summary.manualReviewCount}
           label="Manual Review"
+          valueColor="text-amber-400"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Priority Tiers</h3>
-          <div className="space-y-2">
-            <TierRow label="Tier 1 (Impacts DSB)" value={summary.tierCounts.tier1} color="text-red-600" />
-            <TierRow label="Tier 2 (Within Geo + POD)" value={summary.tierCounts.tier2} color="text-green-600" />
-            <TierRow label="Tier 3 (Attended)" value={summary.tierCounts.tier3} color="text-blue-600" />
-            <TierRow label="Tier 4 (Manual Review)" value={summary.tierCounts.tier4} color="text-amber-600" />
+        <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">
+          <h3 className="text-sm font-medium text-neutral-300 mb-4">Priority Tiers</h3>
+          <div className="space-y-3">
+            <TierRow label="Tier 1 (Impacts DSB)" value={summary.tierCounts.tier1} color="text-red-400" />
+            <TierRow label="Tier 2 (Within Geo + POD)" value={summary.tierCounts.tier2} color="text-green-400" />
+            <TierRow label="Tier 3 (Attended)" value={summary.tierCounts.tier3} color="text-blue-400" />
+            <TierRow label="Tier 4 (Manual Review)" value={summary.tierCounts.tier4} color="text-amber-400" />
           </div>
         </div>
 
         {summary.repeatDrivers.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-4">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">
+            <h3 className="text-sm font-medium text-neutral-300 mb-4">
               Repeat Drivers (3+ Concessions)
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {summary.repeatDrivers.slice(0, 5).map((driver) => (
                 <div key={driver.driverId} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 truncate" title={driver.name}>
+                  <span className="text-sm text-neutral-400 truncate" title={driver.name}>
                     {driver.name}
                   </span>
-                  <span className="text-sm font-medium text-amber-600">
+                  <span className="text-sm font-medium text-amber-400">
                     {driver.concessionCount}
                   </span>
                 </div>
               ))}
               {summary.repeatDrivers.length > 5 && (
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-neutral-500">
                   +{summary.repeatDrivers.length - 5} more
                 </p>
               )}
@@ -129,71 +132,73 @@ function FeedbackDashboard({ summary }: { summary: FeedbackSummary }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Customer Feedback Summary</h2>
-        <div className="text-sm text-gray-500">
+        <h2 className="text-lg font-semibold text-white">Customer Feedback Summary</h2>
+        <div className="text-sm text-neutral-400">
           {summary.station} | {summary.week}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <StatCard
-          icon={<FileWarningIcon className="w-5 h-5 text-gray-600" />}
-          iconBg="bg-gray-100"
+          icon={<FileWarningIcon className="w-5 h-5 text-neutral-400" />}
+          iconBg="bg-neutral-800"
           value={summary.totalFeedback}
           label="Total Feedback"
         />
         <StatCard
-          icon={<CheckCircleIcon className="w-5 h-5 text-green-600" />}
-          iconBg="bg-green-100"
+          icon={<CheckCircleIcon className="w-5 h-5 text-green-400" />}
+          iconBg="bg-green-500/10"
           value={summary.autoDisputedCount}
           label="Auto-Disputed"
           subtext={`${autoRate}% rate`}
+          valueColor="text-green-400"
         />
         <StatCard
-          icon={<UsersIcon className="w-5 h-5 text-amber-600" />}
-          iconBg="bg-amber-100"
+          icon={<UsersIcon className="w-5 h-5 text-amber-400" />}
+          iconBg="bg-amber-500/10"
           value={summary.manualReviewCount}
           label="Manual Review"
+          valueColor="text-amber-400"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Priority Tiers</h3>
-          <div className="space-y-2">
-            <TierRow label="Tier 1 (Wrong Address / Never Received)" value={summary.tierCounts.tier1} color="text-red-600" />
-            <TierRow label="Tier 2 (Didn't Follow Instructions)" value={summary.tierCounts.tier2} color="text-green-600" />
-            <TierRow label="Tier 3 (Manual Review)" value={summary.tierCounts.tier3} color="text-amber-600" />
+        <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">
+          <h3 className="text-sm font-medium text-neutral-300 mb-4">Priority Tiers</h3>
+          <div className="space-y-3">
+            <TierRow label="Tier 1 (Wrong Address / Never Received)" value={summary.tierCounts.tier1} color="text-red-400" />
+            <TierRow label="Tier 2 (Didn't Follow Instructions)" value={summary.tierCounts.tier2} color="text-green-400" />
+            <TierRow label="Tier 3 (Manual Review)" value={summary.tierCounts.tier3} color="text-amber-400" />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Feedback Types</h3>
-          <div className="space-y-2">
+        <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">
+          <h3 className="text-sm font-medium text-neutral-300 mb-4">Feedback Types</h3>
+          <div className="space-y-3">
             {Object.entries(summary.feedbackTypeBreakdown)
               .sort(([, a], [, b]) => b - a)
               .slice(0, 5)
               .map(([type, count]) => (
                 <div key={type} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">{type}</span>
-                  <span className="text-sm font-medium text-gray-900">{count}</span>
+                  <span className="text-sm text-neutral-400">{type}</span>
+                  <span className="text-sm font-medium text-white">{count}</span>
                 </div>
               ))}
           </div>
         </div>
 
         {summary.repeatDrivers.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-4 md:col-span-2">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5 md:col-span-2">
+            <h3 className="text-sm font-medium text-neutral-300 mb-4">
               Repeat Drivers (3+ Feedback)
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {summary.repeatDrivers.slice(0, 6).map((driver) => (
                 <div key={driver.driverId} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 truncate" title={driver.name}>
+                  <span className="text-sm text-neutral-400 truncate" title={driver.name}>
                     {driver.name}
                   </span>
-                  <span className="text-sm font-medium text-amber-600">
+                  <span className="text-sm font-medium text-amber-400">
                     {driver.feedbackCount}
                   </span>
                 </div>
@@ -207,32 +212,26 @@ function FeedbackDashboard({ summary }: { summary: FeedbackSummary }) {
 }
 
 function RTSDashboard({ summary }: { summary: RTSSummary }) {
-  const disputeableCount = summary.autoDisputedCount + summary.manualReviewCount
-  const highConfidenceRate = disputeableCount > 0
-    ? ((summary.highConfidenceCount / disputeableCount) * 100).toFixed(1)
-    : '0.0'
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">DCR/RTS Summary</h2>
-        <div className="text-sm text-gray-500">
+        <h2 className="text-lg font-semibold text-white">DCR/RTS Summary</h2>
+        <div className="text-sm text-neutral-400">
           {summary.station} | {summary.week}
         </div>
       </div>
 
       {/* High Confidence Alert Banner */}
       {summary.highConfidenceCount > 0 && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+        <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <CheckCircleIcon className="w-5 h-5 text-green-600 mt-0.5" />
+            <CheckCircleIcon className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
             <div>
-              <h3 className="text-sm font-semibold text-green-800">
+              <h3 className="text-sm font-semibold text-green-400">
                 {summary.highConfidenceCount} High-Confidence Disputes Ready
               </h3>
-              <p className="text-sm text-green-700 mt-1">
+              <p className="text-sm text-green-300/70 mt-1">
                 These are &quot;Package Not On Van&quot; cases that Amazon typically approves.
-                Based on historical data, these have the highest approval rate.
               </p>
             </div>
           </div>
@@ -241,114 +240,117 @@ function RTSDashboard({ summary }: { summary: RTSSummary }) {
 
       {/* Low Confidence Warning */}
       {summary.lowConfidenceCount > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <AlertTriangleIcon className="w-5 h-5 text-amber-600 mt-0.5" />
+            <AlertTriangleIcon className="w-5 h-5 text-amber-400 mt-0.5 flex-shrink-0" />
             <div>
-              <h3 className="text-sm font-semibold text-amber-800">
+              <h3 className="text-sm font-semibold text-amber-400">
                 {summary.lowConfidenceCount} Low-Confidence (Not Recommended)
               </h3>
-              <p className="text-sm text-amber-700 mt-1">
-                These are valid RTS scenarios (Business Closed, Locker Full, OODT, etc.) that Amazon
-                typically rejects. Submitting these disputes has a less than 1% approval rate.
+              <p className="text-sm text-amber-300/70 mt-1">
+                These are valid RTS scenarios that Amazon typically rejects (&lt;1% approval rate).
               </p>
             </div>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatCard
-          icon={<FileWarningIcon className="w-5 h-5 text-gray-600" />}
-          iconBg="bg-gray-100"
+          icon={<FileWarningIcon className="w-5 h-5 text-neutral-400" />}
+          iconBg="bg-neutral-800"
           value={summary.totalRTS}
           label="Total RTS"
         />
         <StatCard
-          icon={<AlertTriangleIcon className="w-5 h-5 text-red-600" />}
-          iconBg="bg-red-100"
+          icon={<AlertTriangleIcon className="w-5 h-5 text-red-400" />}
+          iconBg="bg-red-500/10"
           value={summary.impactsDCRCount}
           label="Impacts DCR"
+          valueColor="text-red-400"
         />
         <StatCard
-          icon={<CheckCircleIcon className="w-5 h-5 text-blue-600" />}
-          iconBg="bg-blue-100"
+          icon={<CheckCircleIcon className="w-5 h-5 text-blue-400" />}
+          iconBg="bg-blue-500/10"
           value={summary.alreadyExemptedCount}
           label="Already Exempted"
+          valueColor="text-blue-400"
         />
         <StatCard
-          icon={<CheckCircleIcon className="w-5 h-5 text-green-600" />}
-          iconBg="bg-green-100"
+          icon={<CheckCircleIcon className="w-5 h-5 text-green-400" />}
+          iconBg="bg-green-500/10"
           value={summary.highConfidenceCount}
           label="High Confidence"
           subtext="Recommended"
+          valueColor="text-green-400"
         />
         <StatCard
-          icon={<UsersIcon className="w-5 h-5 text-amber-600" />}
-          iconBg="bg-amber-100"
+          icon={<UsersIcon className="w-5 h-5 text-amber-400" />}
+          iconBg="bg-amber-500/10"
           value={summary.lowConfidenceCount}
           label="Low Confidence"
-          subtext="Not Recommended"
+          subtext="Skip"
+          valueColor="text-amber-400"
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* High Confidence Breakdown */}
-        <div className="bg-white rounded-xl border border-green-200 p-4">
-          <h3 className="text-sm font-medium text-green-700 mb-3 flex items-center gap-2">
+        <div className="bg-neutral-900 rounded-xl border border-green-500/20 p-5">
+          <h3 className="text-sm font-medium text-green-400 mb-4 flex items-center gap-2">
             <CheckCircleIcon className="w-4 h-4" />
-            High-Confidence RTS Codes (Submit These)
+            High-Confidence RTS Codes
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {Object.entries(summary.highConfidenceBreakdown || {})
               .sort(([, a], [, b]) => b - a)
               .slice(0, 5)
               .map(([code, count]) => (
                 <div key={code} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">{code}</span>
-                  <span className="text-sm font-medium text-green-600">{count}</span>
+                  <span className="text-sm text-neutral-400">{code}</span>
+                  <span className="text-sm font-medium text-green-400">{count}</span>
                 </div>
               ))}
             {Object.keys(summary.highConfidenceBreakdown || {}).length === 0 && (
-              <p className="text-sm text-gray-400 italic">No high-confidence cases found</p>
+              <p className="text-sm text-neutral-500 italic">No high-confidence cases</p>
             )}
           </div>
         </div>
 
         {/* Low Confidence Breakdown */}
-        <div className="bg-white rounded-xl border border-amber-200 p-4">
-          <h3 className="text-sm font-medium text-amber-700 mb-3 flex items-center gap-2">
+        <div className="bg-neutral-900 rounded-xl border border-amber-500/20 p-5">
+          <h3 className="text-sm font-medium text-amber-400 mb-4 flex items-center gap-2">
             <AlertTriangleIcon className="w-4 h-4" />
-            Low-Confidence RTS Codes (Skip These)
+            Low-Confidence RTS Codes
           </h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {Object.entries(summary.lowConfidenceBreakdown || {})
               .sort(([, a], [, b]) => b - a)
               .slice(0, 5)
               .map(([code, count]) => (
                 <div key={code} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">{code}</span>
-                  <span className="text-sm font-medium text-amber-600">{count}</span>
+                  <span className="text-sm text-neutral-400">{code}</span>
+                  <span className="text-sm font-medium text-amber-400">{count}</span>
                 </div>
               ))}
             {Object.keys(summary.lowConfidenceBreakdown || {}).length === 0 && (
-              <p className="text-sm text-gray-400 italic">No low-confidence cases found</p>
+              <p className="text-sm text-neutral-500 italic">No low-confidence cases</p>
             )}
           </div>
         </div>
 
         {summary.repeatDrivers.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-4 md:col-span-2">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5 md:col-span-2">
+            <h3 className="text-sm font-medium text-neutral-300 mb-4">
               Repeat Drivers (3+ RTS)
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {summary.repeatDrivers.slice(0, 6).map((driver) => (
                 <div key={driver.driverId} className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 truncate" title={driver.name}>
+                  <span className="text-sm text-neutral-400 truncate" title={driver.name}>
                     {driver.name}
                   </span>
-                  <span className="text-sm font-medium text-amber-600">
+                  <span className="text-sm font-medium text-amber-400">
                     {driver.rtsCount}
                   </span>
                 </div>
@@ -367,24 +369,26 @@ function StatCard({
   iconBg,
   value,
   label,
-  subtext
+  subtext,
+  valueColor = 'text-white'
 }: {
   icon: React.ReactNode
   iconBg: string
   value: number
   label: string
   subtext?: string
+  valueColor?: string
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4">
+    <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-4">
       <div className="flex items-center gap-3">
-        <div className={`p-2 rounded-lg ${iconBg}`}>
+        <div className={`p-2.5 rounded-xl ${iconBg}`}>
           {icon}
         </div>
-        <div>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
-          <p className="text-sm text-gray-500">{label}</p>
-          {subtext && <p className="text-xs text-gray-400">{subtext}</p>}
+        <div className="min-w-0">
+          <p className={`text-2xl font-bold ${valueColor}`}>{value}</p>
+          <p className="text-sm text-neutral-400 truncate">{label}</p>
+          {subtext && <p className="text-xs text-neutral-500">{subtext}</p>}
         </div>
       </div>
     </div>
@@ -395,8 +399,8 @@ function StatCard({
 function TierRow({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-gray-600">{label}</span>
-      <span className={`text-sm font-medium ${color}`}>{value}</span>
+      <span className="text-sm text-neutral-400">{label}</span>
+      <span className={`text-sm font-semibold ${color}`}>{value}</span>
     </div>
   )
 }

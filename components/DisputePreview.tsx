@@ -38,48 +38,48 @@ export function DisputePreview({ disputes, category }: DisputePreviewProps) {
   const getPriorityColor = (priority: number) => {
     switch (priority) {
       case 1:
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-500/20 text-red-400 border border-red-500/30'
       case 2:
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-500/20 text-green-400 border border-green-500/30'
       case 3:
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
       case 4:
-        return 'bg-amber-100 text-amber-800'
+        return 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-neutral-700 text-neutral-300 border border-neutral-600'
     }
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
-          Dispute Preview ({disputes.length} total)
+        <h2 className="text-lg font-semibold text-white">
+          Dispute Preview <span className="text-neutral-400 font-normal">({disputes.length} total)</span>
         </h2>
         {totalPages > 1 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronLeftIcon className="w-5 h-5" />
+              <ChevronLeftIcon className="w-4 h-4 text-neutral-300" />
             </button>
-            <span className="text-sm text-gray-600">
-              Page {currentPage} of {totalPages}
+            <span className="text-sm text-neutral-400 min-w-[80px] text-center">
+              {currentPage} of {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              <ChevronRightIcon className="w-5 h-5" />
+              <ChevronRightIcon className="w-4 h-4 text-neutral-300" />
             </button>
           </div>
         )}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-neutral-900 rounded-xl border border-neutral-800 overflow-hidden">
         <div className="overflow-x-auto">
           {category === 'concessions' && (
             <ConcessionTable
@@ -115,59 +115,59 @@ function ConcessionTable({
   return (
     <table className="w-full">
       <thead>
-        <tr className="bg-gray-50 border-b border-gray-200">
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <tr className="border-b border-neutral-800">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Priority
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Tracking ID
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Driver
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Type
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             DSB
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider max-w-md">
             Reason
           </th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-200">
+      <tbody className="divide-y divide-neutral-800">
         {disputes.map((dispute, idx) => (
-          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-gray-50">
+          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-neutral-800/50 transition-colors">
             <td className="px-4 py-3 whitespace-nowrap">
               <span
                 className={clsx(
-                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium',
                   getPriorityColor(dispute.priority)
                 )}
               >
                 Tier {dispute.priority}
               </span>
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-mono">
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-200 font-mono">
               {dispute.trackingId}
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-              <div className="truncate max-w-[150px]" title={dispute.driver}>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
+              <div className="truncate max-w-[140px]" title={dispute.driver}>
                 {dispute.driver}
               </div>
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
               {dispute.deliveryType}
             </td>
             <td className="px-4 py-3 whitespace-nowrap text-sm">
               {dispute.impactsDSB ? (
-                <span className="text-red-600 font-medium">Yes</span>
+                <span className="text-red-400 font-medium">Yes</span>
               ) : (
-                <span className="text-gray-400">No</span>
+                <span className="text-neutral-500">No</span>
               )}
             </td>
-            <td className="px-4 py-3 text-sm text-gray-600">
+            <td className="px-4 py-3 text-sm text-neutral-400">
               <div className="max-w-md truncate" title={dispute.reason}>
                 {dispute.reason}
               </div>
@@ -189,57 +189,57 @@ function FeedbackTable({
   return (
     <table className="w-full">
       <thead>
-        <tr className="bg-gray-50 border-b border-gray-200">
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <tr className="border-b border-neutral-800">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Priority
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Tracking ID
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Driver
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Feedback Type
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Details
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider max-w-md">
             Dispute Reason
           </th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-200">
+      <tbody className="divide-y divide-neutral-800">
         {disputes.map((dispute, idx) => (
-          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-gray-50">
+          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-neutral-800/50 transition-colors">
             <td className="px-4 py-3 whitespace-nowrap">
               <span
                 className={clsx(
-                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium',
                   getPriorityColor(dispute.priority)
                 )}
               >
                 Tier {dispute.priority}
               </span>
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-mono">
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-200 font-mono">
               {dispute.trackingId}
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-              <div className="truncate max-w-[150px]" title={dispute.driver}>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
+              <div className="truncate max-w-[140px]" title={dispute.driver}>
                 {dispute.driver}
               </div>
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
               {dispute.feedbackType}
             </td>
-            <td className="px-4 py-3 text-sm text-gray-600">
-              <div className="max-w-[200px] truncate" title={dispute.feedbackDetails}>
+            <td className="px-4 py-3 text-sm text-neutral-400">
+              <div className="max-w-[180px] truncate" title={dispute.feedbackDetails}>
                 {dispute.feedbackDetails || '-'}
               </div>
             </td>
-            <td className="px-4 py-3 text-sm text-gray-600">
+            <td className="px-4 py-3 text-sm text-neutral-400">
               <div className="max-w-md truncate" title={dispute.reason}>
                 {dispute.reason}
               </div>
@@ -261,55 +261,55 @@ function RTSTable({
   return (
     <table className="w-full">
       <thead>
-        <tr className="bg-gray-50 border-b border-gray-200">
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <tr className="border-b border-neutral-800">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Priority
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Tracking ID
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Driver
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             RTS Code
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            Planned Date
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            Date
           </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-md">
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider max-w-md">
             Dispute Reason
           </th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-gray-200">
+      <tbody className="divide-y divide-neutral-800">
         {disputes.map((dispute, idx) => (
-          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-gray-50">
+          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-neutral-800/50 transition-colors">
             <td className="px-4 py-3 whitespace-nowrap">
               <span
                 className={clsx(
-                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium',
                   getPriorityColor(dispute.priority)
                 )}
               >
                 Tier {dispute.priority}
               </span>
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-mono">
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-200 font-mono">
               {dispute.trackingId}
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-              <div className="truncate max-w-[150px]" title={dispute.driver}>
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
+              <div className="truncate max-w-[140px]" title={dispute.driver}>
                 {dispute.driver}
               </div>
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
               {dispute.rtsCode}
             </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
               {dispute.plannedDate}
             </td>
-            <td className="px-4 py-3 text-sm text-gray-600">
+            <td className="px-4 py-3 text-sm text-neutral-400">
               <div className="max-w-md truncate" title={dispute.reason}>
                 {dispute.reason}
               </div>
