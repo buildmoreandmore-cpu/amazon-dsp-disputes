@@ -7,7 +7,7 @@ import { StatsDashboard } from '@/components/StatsDashboard'
 import { DisputePreview } from '@/components/DisputePreview'
 import { DownloadButtons } from '@/components/DownloadButtons'
 import { CategorySelector } from '@/components/CategorySelector'
-import { TruckIcon, ChevronLeftIcon } from '@/components/Icons'
+import { ChevronLeftIcon } from '@/components/Icons'
 import type {
   DisputeCategory,
   DisputeResult,
@@ -20,7 +20,6 @@ import type {
 
 type Step = 'category' | 'upload' | 'preview' | 'download'
 
-// Union type for all dispute types
 type AnyDispute = DisputeResult | FeedbackDispute | RTSDispute
 type AnySummary = DisputeSummary | FeedbackSummary | RTSSummary
 
@@ -116,31 +115,39 @@ export default function ToolPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-neutral-950 text-white">
+      {/* Dot Grid Background */}
+      <div
+        className="fixed inset-0 opacity-20"
+        style={{
+          backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)`,
+          backgroundSize: '24px 24px'
+        }}
+      />
+
       {/* Tool Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <header className="relative z-50 border-b border-neutral-800 bg-neutral-950/80 backdrop-blur-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link
               href="/"
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors"
+              className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
             >
               <ChevronLeftIcon className="w-5 h-5" />
-              <span className="text-sm font-medium">Back to Home</span>
+              <span className="text-sm font-medium">Back</span>
             </Link>
-            <div className="flex items-center gap-3">
-              <TruckIcon className="w-6 h-6 text-amber-500" />
-              <span className="font-semibold text-slate-900">DSP Dispute Tool</span>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">Dispute Desk</span>
             </div>
-            <div className="w-24" /> {/* Spacer for centering */}
+            <div className="w-16" />
           </div>
         </div>
       </header>
 
-      <main className="py-8 px-4">
-        <div className="max-w-6xl mx-auto">
+      <main className="relative z-10 py-8 px-4">
+        <div className="max-w-5xl mx-auto">
           {/* Step Progress */}
-          <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8">
+          <div className="flex items-center justify-center gap-2 sm:gap-4 mb-12">
             <StepIndicator
               step={1}
               label="Category"
@@ -171,12 +178,12 @@ export default function ToolPage() {
           </div>
 
           {step === 'category' && (
-            <div className="max-w-4xl mx-auto space-y-6">
-              <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
                   Select Dispute Category
                 </h1>
-                <p className="text-slate-600">
+                <p className="text-neutral-400">
                   Choose the type of disputes you want to process
                 </p>
               </div>
@@ -184,10 +191,10 @@ export default function ToolPage() {
                 selected={category}
                 onChange={handleCategorySelect}
               />
-              <div className="flex justify-center pt-6">
+              <div className="flex justify-center pt-4">
                 <button
                   onClick={handleContinueToUpload}
-                  className="px-8 py-3 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-all font-semibold shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-0.5"
+                  className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold"
                 >
                   Continue to Upload
                 </button>
@@ -196,22 +203,22 @@ export default function ToolPage() {
           )}
 
           {step === 'upload' && (
-            <div className="max-w-xl mx-auto space-y-6">
-              <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+            <div className="max-w-xl mx-auto space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
                   Upload Your CSV File
                 </h1>
-                <p className="text-slate-600">
+                <p className="text-neutral-400">
                   Drop your Amazon report file to generate disputes
                 </p>
               </div>
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
-                <p className="text-sm text-amber-800">
-                  Processing: <span className="font-semibold">{getCategoryLabel(category)}</span>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+                <p className="text-sm text-neutral-300">
+                  Processing: <span className="font-semibold text-white">{getCategoryLabel(category)}</span>
                 </p>
                 <button
                   onClick={() => setStep('category')}
-                  className="text-sm text-amber-600 hover:text-amber-800 underline mt-1"
+                  className="text-sm text-neutral-400 hover:text-white underline mt-1"
                 >
                   Change category
                 </button>
@@ -227,26 +234,26 @@ export default function ToolPage() {
           {step === 'preview' && summary && (
             <div className="space-y-8">
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
                   Review Your Disputes
                 </h1>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-full">
-                  <span className="text-sm text-amber-800 font-medium">{getCategoryLabel(category)}</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-full">
+                  <span className="text-sm text-neutral-300">{getCategoryLabel(category)}</span>
                 </div>
               </div>
               <StatsDashboard summary={summary} category={category} />
               <DisputePreview disputes={disputes} category={category} />
 
-              <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+              <div className="flex items-center justify-between pt-6 border-t border-neutral-800">
                 <button
                   onClick={handleBackToUpload}
-                  className="px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors font-medium"
+                  className="px-4 py-2 text-neutral-400 hover:text-white transition-colors font-medium"
                 >
                   Upload a different file
                 </button>
                 <button
                   onClick={() => setStep('download')}
-                  className="px-8 py-3 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-all font-semibold shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-0.5"
+                  className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold"
                 >
                   Continue to Download
                 </button>
@@ -257,11 +264,12 @@ export default function ToolPage() {
           {step === 'download' && summary && (
             <div className="space-y-8">
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
                   Download Your Files
                 </h1>
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-full">
-                  <span className="text-sm text-green-800 font-medium">Ready for download</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span className="text-sm text-green-400 font-medium">Ready for download</span>
                 </div>
               </div>
               <StatsDashboard summary={summary} category={category} />
@@ -271,10 +279,10 @@ export default function ToolPage() {
                 outputFilename={outputFilename}
               />
 
-              <div className="pt-6 border-t border-slate-200">
+              <div className="pt-6 border-t border-neutral-800">
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2 text-slate-600 hover:text-slate-800 transition-colors font-medium"
+                  className="px-4 py-2 text-neutral-400 hover:text-white transition-colors font-medium"
                 >
                   Process another file
                 </button>
@@ -301,19 +309,19 @@ function StepIndicator({
   return (
     <div className="flex items-center gap-2">
       <div
-        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
+        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all border-2 ${
           active
-            ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+            ? 'bg-white text-black border-white'
             : completed
-              ? 'bg-green-500 text-white'
-              : 'bg-slate-200 text-slate-500'
+              ? 'bg-green-500 text-white border-green-500'
+              : 'bg-transparent text-neutral-500 border-neutral-700'
         }`}
       >
         {completed ? '✓' : step}
       </div>
       <span
         className={`text-sm font-medium hidden sm:block ${
-          active ? 'text-amber-600' : completed ? 'text-green-600' : 'text-slate-500'
+          active ? 'text-white' : completed ? 'text-green-400' : 'text-neutral-500'
         }`}
       >
         {label}
@@ -324,6 +332,6 @@ function StepIndicator({
 
 function StepConnector({ completed }: { completed: boolean }) {
   return (
-    <div className={`w-8 sm:w-12 h-0.5 transition-colors ${completed ? 'bg-green-500' : 'bg-slate-300'}`} />
+    <div className={`w-8 sm:w-12 h-0.5 transition-colors ${completed ? 'bg-green-500' : 'bg-neutral-800'}`} />
   )
 }

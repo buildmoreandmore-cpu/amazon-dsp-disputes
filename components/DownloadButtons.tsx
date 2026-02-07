@@ -56,42 +56,42 @@ export function DownloadButtons({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Download Results</h2>
+    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
+      <h2 className="text-lg font-semibold text-white mb-4">Download Results</h2>
 
       <div className="grid sm:grid-cols-3 gap-4">
         <button
           onClick={handleDownloadXLSX}
-          className="flex flex-col items-center justify-center gap-3 p-6 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-all font-medium shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 hover:-translate-y-0.5"
+          className="flex flex-col items-center justify-center gap-3 p-6 bg-white text-black rounded-xl hover:bg-neutral-200 transition-all font-medium"
         >
           <DownloadIcon className="w-8 h-8" />
           <div className="text-center">
             <div className="font-semibold">Dispute Spreadsheet</div>
-            <div className="text-amber-100 text-sm mt-1">XLSX format</div>
+            <div className="text-neutral-500 text-sm mt-1">XLSX format</div>
           </div>
         </button>
 
         <button
           onClick={handleDownloadMarkdown}
-          className="flex flex-col items-center justify-center gap-3 p-6 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all font-medium"
+          className="flex flex-col items-center justify-center gap-3 p-6 bg-neutral-800 text-white rounded-xl hover:bg-neutral-700 transition-all font-medium border border-neutral-700"
         >
           <FileTextIcon className="w-8 h-8" />
           <div className="text-center">
             <div className="font-semibold">Summary Report</div>
-            <div className="text-slate-500 text-sm mt-1">Markdown format</div>
+            <div className="text-neutral-400 text-sm mt-1">Markdown format</div>
           </div>
         </button>
 
         <button
           onClick={handleCopyMarkdown}
-          className="flex flex-col items-center justify-center gap-3 p-6 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition-all font-medium"
+          className="flex flex-col items-center justify-center gap-3 p-6 bg-neutral-800 text-white rounded-xl hover:bg-neutral-700 transition-all font-medium border border-neutral-700"
         >
           {copied ? (
             <>
-              <CheckIcon className="w-8 h-8 text-green-600" />
+              <CheckIcon className="w-8 h-8 text-green-400" />
               <div className="text-center">
-                <div className="font-semibold text-green-600">Copied!</div>
-                <div className="text-slate-500 text-sm mt-1">To clipboard</div>
+                <div className="font-semibold text-green-400">Copied!</div>
+                <div className="text-neutral-400 text-sm mt-1">To clipboard</div>
               </div>
             </>
           ) : (
@@ -99,14 +99,14 @@ export function DownloadButtons({
               <CopyIcon className="w-8 h-8" />
               <div className="text-center">
                 <div className="font-semibold">Copy Summary</div>
-                <div className="text-slate-500 text-sm mt-1">To clipboard</div>
+                <div className="text-neutral-400 text-sm mt-1">To clipboard</div>
               </div>
             </>
           )}
         </button>
       </div>
 
-      <p className="text-sm text-slate-500 mt-4 text-center">
+      <p className="text-sm text-neutral-500 mt-4 text-center">
         The XLSX file is ready for submission to Amazon. The summary can be shared with your team.
       </p>
     </div>

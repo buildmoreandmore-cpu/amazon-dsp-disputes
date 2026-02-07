@@ -52,8 +52,8 @@ export function FileUpload({ onFileSelect, isLoading, error }: FileUploadProps) 
         className={clsx(
           'relative border-2 border-dashed rounded-2xl p-10 transition-all duration-200 cursor-pointer',
           isDragging
-            ? 'border-amber-500 bg-amber-50'
-            : 'border-slate-300 hover:border-amber-400 bg-white',
+            ? 'border-white bg-neutral-800'
+            : 'border-neutral-700 hover:border-neutral-500 bg-neutral-900',
           isLoading && 'opacity-50 pointer-events-none'
         )}
       >
@@ -68,35 +68,35 @@ export function FileUpload({ onFileSelect, isLoading, error }: FileUploadProps) 
         <div className="flex flex-col items-center justify-center text-center">
           {isLoading ? (
             <>
-              <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mb-4">
-                <LoaderIcon className="w-8 h-8 text-amber-500 animate-spin" />
+              <div className="w-16 h-16 bg-neutral-800 rounded-2xl flex items-center justify-center mb-4">
+                <LoaderIcon className="w-8 h-8 text-white animate-spin" />
               </div>
-              <p className="text-lg font-semibold text-slate-900">Processing disputes...</p>
-              <p className="text-sm text-slate-500 mt-1">This may take a few moments</p>
+              <p className="text-lg font-semibold text-white">Processing disputes...</p>
+              <p className="text-sm text-neutral-400 mt-1">This may take a few moments</p>
             </>
           ) : selectedFile ? (
             <>
-              <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-4">
-                <FileTextIcon className="w-8 h-8 text-green-600" />
+              <div className="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mb-4">
+                <FileTextIcon className="w-8 h-8 text-green-400" />
               </div>
-              <p className="text-lg font-semibold text-slate-900">{selectedFile.name}</p>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-lg font-semibold text-white">{selectedFile.name}</p>
+              <p className="text-sm text-neutral-400 mt-1">
                 {(selectedFile.size / 1024).toFixed(1)} KB
               </p>
-              <p className="text-sm text-amber-600 mt-3 font-medium">Drop a new file to replace</p>
+              <p className="text-sm text-neutral-500 mt-3">Drop a new file to replace</p>
             </>
           ) : (
             <>
-              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
-                <UploadIcon className="w-8 h-8 text-slate-400" />
+              <div className="w-16 h-16 bg-neutral-800 rounded-2xl flex items-center justify-center mb-4">
+                <UploadIcon className="w-8 h-8 text-neutral-400" />
               </div>
-              <p className="text-lg font-semibold text-slate-900">
+              <p className="text-lg font-semibold text-white">
                 Drop your CSV file here
               </p>
-              <p className="text-sm text-slate-500 mt-1">
+              <p className="text-sm text-neutral-400 mt-1">
                 or click to browse
               </p>
-              <p className="text-xs text-slate-400 mt-4 bg-slate-50 px-3 py-1.5 rounded-full">
+              <p className="text-xs text-neutral-500 mt-4 bg-neutral-800 px-3 py-1.5 rounded-full">
                 Supports Amazon DSP exports (.csv)
               </p>
             </>
@@ -105,11 +105,11 @@ export function FileUpload({ onFileSelect, isLoading, error }: FileUploadProps) 
       </div>
 
       {error && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-          <AlertCircleIcon className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3">
+          <AlertCircleIcon className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-red-800">Error processing file</p>
-            <p className="text-sm text-red-600 mt-1">{error}</p>
+            <p className="text-sm font-semibold text-red-400">Error processing file</p>
+            <p className="text-sm text-red-300/80 mt-1">{error}</p>
           </div>
         </div>
       )}

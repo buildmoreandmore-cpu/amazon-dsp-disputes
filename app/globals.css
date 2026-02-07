@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-primary: #f59e0b;
-  --color-primary-hover: #d97706;
+  --color-primary: #ffffff;
+  --color-primary-hover: #e5e5e5;
 }
 
 /* Smooth scrolling */
@@ -12,7 +12,7 @@ html {
 
 /* Custom selection color */
 ::selection {
-  background-color: rgba(245, 158, 11, 0.3);
+  background-color: rgba(255, 255, 255, 0.2);
   color: inherit;
 }
 
@@ -23,43 +23,67 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #0a0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: #262626;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-}
-
-/* Subtle animations */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+  background: #404040;
 }
 
 /* Focus styles for accessibility */
 *:focus-visible {
-  outline: 2px solid #f59e0b;
+  outline: 2px solid #ffffff;
   outline-offset: 2px;
 }
 
-/* Button hover lift effect */
-.hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Subtle text gradient for headlines */
+.text-gradient {
+  background: linear-gradient(to right, #ffffff, #a3a3a3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.hover-lift:hover {
-  transform: translateY(-2px);
+/* Glow effects */
+.glow-sm {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.glow-md {
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+}
+
+/* Animate on scroll fade in */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* Subtle pulse for live indicators */
+@keyframes subtlePulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-subtle-pulse {
+  animation: subtlePulse 2s ease-in-out infinite;
 }
