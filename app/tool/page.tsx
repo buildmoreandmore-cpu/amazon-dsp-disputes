@@ -7,7 +7,7 @@ import { StatsDashboard } from '@/components/StatsDashboard'
 import { DisputePreview } from '@/components/DisputePreview'
 import { DownloadButtons } from '@/components/DownloadButtons'
 import { CategorySelector } from '@/components/CategorySelector'
-import { ChevronLeftIcon } from '@/components/Icons'
+import { ChevronLeftIcon, BookOpenIcon } from '@/components/Icons'
 import type {
   DisputeCategory,
   DisputeResult,
@@ -139,7 +139,13 @@ export default function ToolPage() {
             <div className="flex items-center gap-2">
               <span className="font-semibold">Dispute Desk</span>
             </div>
-            <div className="w-16" />
+            <Link
+              href="/learn"
+              className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors text-sm font-medium"
+            >
+              <BookOpenIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Teach System</span>
+            </Link>
           </div>
         </div>
       </header>

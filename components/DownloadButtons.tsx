@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { DownloadIcon, FileTextIcon, CopyIcon, CheckIcon } from './Icons'
+import Link from 'next/link'
+import { DownloadIcon, FileTextIcon, CopyIcon, CheckIcon, BookOpenIcon } from './Icons'
 
 interface DownloadButtonsProps {
   xlsxBase64: string
@@ -109,6 +110,49 @@ export function DownloadButtons({
       <p className="text-sm text-neutral-500 mt-4 text-center">
         The XLSX file is ready for submission to Amazon. The summary can be shared with your team.
       </p>
+
+      {/* Additional Evidence Tip */}
+      <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+        <h3 className="text-amber-400 font-semibold text-sm mb-2 flex items-center gap-2">
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          </svg>
+          Strengthen Your Disputes
+        </h3>
+        <p className="text-neutral-300 text-sm mb-2">
+          The spreadsheet includes an <span className="font-semibold text-white">&quot;Additional Evidence&quot;</span> column for high-priority disputes.
+        </p>
+        <p className="text-neutral-400 text-xs mb-2">
+          For stronger disputes, look up the TBA in Amazon&apos;s <span className="text-amber-400">Delivery Contrast Map popup</span> and add:
+        </p>
+        <ul className="text-neutral-400 text-xs space-y-1 ml-4 list-disc">
+          <li>Distance between actual and planned delivery (e.g., &quot;21.38 meters&quot;)</li>
+          <li>GPS coordinates and dropoff location details</li>
+          <li>Concession reason specifics</li>
+          <li>POD status and customer notes</li>
+        </ul>
+      </div>
+
+      {/* Teach the System */}
+      <div className="mt-4 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-emerald-400 font-semibold text-sm mb-1 flex items-center gap-2">
+              <BookOpenIcon className="w-4 h-4" />
+              Help the System Learn
+            </h3>
+            <p className="text-neutral-400 text-xs">
+              After filling in evidence, upload your completed file to teach the system better patterns.
+            </p>
+          </div>
+          <Link
+            href="/learn"
+            className="flex-shrink-0 ml-4 px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 text-sm font-medium rounded-lg transition-colors"
+          >
+            Teach System
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }

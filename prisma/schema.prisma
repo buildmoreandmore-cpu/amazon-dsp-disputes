@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model EvidenceEntry {
+  id          String   @id @default(cuid())
+  trackingId  String
+  disputeType String   // 'concession' | 'feedback' | 'rts'
+  evidenceText String
+  disputeReason String
+  priority    Int
+
+  // Concession fields
+  withinGeoFence Boolean?
+  hasPOD         Boolean?
+  deliveryType   String?
+  impactsDSB     Boolean?
+
+  // Feedback fields
+  feedbackType String?
+
+  // RTS fields
+  rtsCode    String?
+  confidence String?
+
+  createdAt DateTime @default(now())
+  station   String?
+  week      String?
+
+  @@index([disputeType])
+  @@index([trackingId])
+}
+
+model EvidencePattern {
+  id               String @id @default(cuid())
+  disputeType      String
+  patternKey       String // e.g., "concession:in_geo:has_pod:attended"
+  evidenceTemplate String
+  usageCount       Int    @default(1)
+
+  @@unique([disputeType, patternKey])
+}

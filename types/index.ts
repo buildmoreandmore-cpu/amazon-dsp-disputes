@@ -1,6 +1,7 @@
 // Re-export all types from separate files
 export * from './feedback'
 export * from './rts'
+export * from './evidence'
 
 // Dispute category type
 export type DisputeCategory = 'concessions' | 'feedback' | 'rts'
