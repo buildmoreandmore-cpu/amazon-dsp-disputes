@@ -13,6 +13,7 @@ interface ConcessionXLSXRow {
   'Within Geo Fence': string
   'Has POD': string
   'Notes': string
+  'Additional Evidence': string
 }
 
 // Feedback XLSX row format
@@ -24,6 +25,7 @@ interface FeedbackXLSXRow {
   'Dispute Reason': string
   'Priority': number
   'Delivery Date': string
+  'Additional Evidence': string
 }
 
 // RTS XLSX row format
@@ -34,6 +36,7 @@ interface RTSXLSXRow {
   'Confidence': string
   'Dispute Reason': string
   'Planned Date': string
+  'Additional Evidence': string
 }
 
 export function generateConcessionXLSX(disputes: DisputeResult[]): string {
@@ -47,7 +50,8 @@ export function generateConcessionXLSX(disputes: DisputeResult[]): string {
     'Delivery Type': d.deliveryType,
     'Within Geo Fence': d.withinGeoFence ? 'Yes' : 'No',
     'Has POD': d.hasPOD ? 'Yes' : 'No',
-    'Notes': d.notes
+    'Notes': d.notes,
+    'Additional Evidence': ''
   }))
 
   const workbook = XLSX.utils.book_new()
@@ -63,7 +67,8 @@ export function generateConcessionXLSX(disputes: DisputeResult[]): string {
     { wch: 14 },  // Delivery Type
     { wch: 16 },  // Within Geo Fence
     { wch: 10 },  // Has POD
-    { wch: 40 }   // Notes
+    { wch: 40 },  // Notes
+    { wch: 50 }   // Additional Evidence
   ]
 
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Concession Disputes')
@@ -80,7 +85,8 @@ export function generateFeedbackXLSX(disputes: FeedbackDispute[]): string {
     'Feedback Details': d.feedbackDetails,
     'Dispute Reason': d.reason,
     'Priority': d.priority,
-    'Delivery Date': d.deliveryDate
+    'Delivery Date': d.deliveryDate,
+    'Additional Evidence': ''
   }))
 
   const workbook = XLSX.utils.book_new()
@@ -93,7 +99,8 @@ export function generateFeedbackXLSX(disputes: FeedbackDispute[]): string {
     { wch: 50 },  // Feedback Details
     { wch: 80 },  // Dispute Reason
     { wch: 8 },   // Priority
-    { wch: 14 }   // Delivery Date
+    { wch: 14 },  // Delivery Date
+    { wch: 50 }   // Additional Evidence
   ]
 
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Feedback Disputes')
@@ -116,7 +123,8 @@ export function generateRTSXLSX(disputes: RTSDispute[]): string {
     'RTS Code': d.rtsCode,
     'Confidence': d.confidence === 'high' ? 'HIGH - Submit' : 'LOW - Skip',
     'Dispute Reason': d.reason,
-    'Planned Date': d.plannedDate
+    'Planned Date': d.plannedDate,
+    'Additional Evidence': ''
   }))
 
   const workbook = XLSX.utils.book_new()
@@ -128,7 +136,8 @@ export function generateRTSXLSX(disputes: RTSDispute[]): string {
     { wch: 22 },  // RTS Code
     { wch: 14 },  // Confidence
     { wch: 80 },  // Dispute Reason
-    { wch: 14 }   // Planned Date
+    { wch: 14 },  // Planned Date
+    { wch: 50 }   // Additional Evidence
   ]
 
   XLSX.utils.book_append_sheet(workbook, worksheet, 'RTS Disputes')

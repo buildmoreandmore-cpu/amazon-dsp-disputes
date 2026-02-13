@@ -1,9 +1,19 @@
 import type { RTSRow, RTSDispute, RTSSummary, RTSRepeatDriver, RTSFilteredItem } from '@/types'
 
-// RTS codes that indicate package logistics issues (high approval rate)
-// These are cases where the package was never on or was removed from the van
-// Amazon approves disputes for these because they're logistics issues, not driver issues
-const HIGH_CONFIDENCE_RTS_CODES = [
+// ============================================================================
+// MARCH 11, 2026 UPDATE: Amazon Auto-Exemptions
+// ============================================================================
+// Amazon now AUTO-EXEMPTS the following DCR cases (no dispute needed):
+// 1. Packages rerouted while driver is on route (OODT, RTS-Other)
+// 2. "Object Missing" packages later delivered by another DA
+//
+// This means most "Package Not on Van" disputes are now OBSOLETE.
+// Focus remaining disputes on cases Amazon doesn't auto-exempt.
+// ============================================================================
+
+// RTS codes that Amazon NOW AUTO-EXEMPTS (as of March 11, 2026)
+// DO NOT dispute these - Amazon handles them automatically
+const AUTO_EXEMPTED_RTS_CODES = [
   'OBJECT MISSING',
   'MISSING',
   'PACKAGE NOT FOUND',
@@ -14,17 +24,26 @@ const HIGH_CONFIDENCE_RTS_CODES = [
   'NEVER LOADED',
   'NOT LOADED',
   'MISROUTE',
-  'MISSORT'
+  'MISSORT',
+  'OODT',           // Out of delivery time - now auto-exempted
+  'OUT OF DELIVERY TIME',
+  'RTS-OTHER'
 ]
 
-// RTS codes that are valid returns (will be rejected by Amazon)
+// RTS codes that MAY still be disputable (delivered same day but marked RTS)
+// These are the only cases worth disputing after March 11
+const STILL_DISPUTABLE_CODES = [
+  'DELIVERED WRONG DAY',  // Rare but disputable
+  'SCAN ERROR',
+  'SYSTEM ERROR'
+]
+
+// RTS codes that are valid returns (Amazon will reject disputes)
 // These are legitimate RTS scenarios from Amazon's perspective
 const LOW_CONFIDENCE_RTS_CODES = [
   'BUSINESS CLOSED',
   'NO LOCKER AVAILABLE',
   'LOCKER FULL',
-  'OODT',
-  'OUT OF DELIVERY TIME',
   'CUSTOMER UNAVAILABLE',
   'CUSTOMER REFUSED',
   'REFUSED',
@@ -38,10 +57,18 @@ const LOW_CONFIDENCE_RTS_CODES = [
   'UNSAFE LOCATION'
 ]
 
-// Check if RTS code indicates a high-confidence dispute (package not on van)
-export function isHighConfidenceDispute(rtsCode: string): boolean {
+// Check if RTS code is auto-exempted by Amazon (no dispute needed)
+export function isAutoExempted(rtsCode: string): boolean {
   const upperCode = rtsCode.toUpperCase()
-  return HIGH_CONFIDENCE_RTS_CODES.some(code =>
+  return AUTO_EXEMPTED_RTS_CODES.some(code =>
+    upperCode.includes(code) || upperCode === code
+  )
+}
+
+// Check if RTS code may still be disputable (rare cases)
+export function isStillDisputable(rtsCode: string): boolean {
+  const upperCode = rtsCode.toUpperCase()
+  return STILL_DISPUTABLE_CODES.some(code =>
     upperCode.includes(code) || upperCode === code
   )
 }
@@ -54,124 +81,149 @@ export function isLowConfidenceDispute(rtsCode: string): boolean {
   )
 }
 
-// Get skip reason for low-confidence disputes
+// Legacy function - now most "high confidence" cases are auto-exempted
+export function isHighConfidenceDispute(rtsCode: string): boolean {
+  // After March 11, these are auto-exempted, not high-confidence disputes
+  return isAutoExempted(rtsCode)
+}
+
+// Get skip reason for non-disputable cases
 export function getSkipReason(rtsCode: string): string {
   const upperCode = rtsCode.toUpperCase()
 
-  if (upperCode.includes('BUSINESS CLOSED')) {
-    return 'Valid RTS - Business was closed. Amazon considers this a legitimate return.'
-  }
-  if (upperCode.includes('LOCKER') || upperCode.includes('NO LOCKER')) {
-    return 'Valid RTS - Locker unavailable. Amazon considers this a legitimate return.'
-  }
-  if (upperCode.includes('OODT') || upperCode.includes('OUT OF DELIVERY TIME')) {
-    return 'Valid RTS - Out of delivery time window. Amazon considers this a legitimate return.'
-  }
-  if (upperCode.includes('CUSTOMER') || upperCode.includes('REFUSED')) {
-    return 'Valid RTS - Customer unavailable/refused. Amazon considers this a legitimate return.'
-  }
-  if (upperCode.includes('ACCESS') || upperCode.includes('GATE') || upperCode.includes('LOCKED')) {
-    return 'Valid RTS - Access issue. Amazon considers this a legitimate return.'
-  }
-  if (upperCode.includes('WEATHER') || upperCode.includes('EMERGENCY')) {
-    return 'Valid RTS - Weather/emergency. Amazon considers this a legitimate return.'
+  // Auto-exempted cases
+  if (isAutoExempted(rtsCode)) {
+    if (upperCode.includes('OBJECT MISSING') || upperCode.includes('MISSING') ||
+        upperCode.includes('NOT IN VAN') || upperCode.includes('NOT FOUND') ||
+        upperCode.includes('NOT LOADED') || upperCode.includes('NEVER LOADED')) {
+      return '✓ AUTO-EXEMPTED by Amazon (March 2026) - "Package Not on Van" cases are now automatically exempted. No dispute needed.'
+    }
+    if (upperCode.includes('MISROUTE') || upperCode.includes('MISSORT')) {
+      return '✓ AUTO-EXEMPTED by Amazon (March 2026) - Misrouted packages are now automatically exempted. No dispute needed.'
+    }
+    if (upperCode.includes('OODT') || upperCode.includes('OUT OF DELIVERY TIME') || upperCode.includes('RTS-OTHER')) {
+      return '✓ AUTO-EXEMPTED by Amazon (March 2026) - Packages rerouted while driver on route are now automatically exempted. No dispute needed.'
+    }
+    return '✓ AUTO-EXEMPTED by Amazon (March 2026) - No dispute needed.'
   }
 
-  return 'Low confidence - Historical rejection rate for this RTS code is high.'
+  // Low confidence cases
+  if (upperCode.includes('BUSINESS CLOSED')) {
+    return 'Valid RTS - Business was closed. Amazon considers this a legitimate return. (<1% approval rate)'
+  }
+  if (upperCode.includes('LOCKER') || upperCode.includes('NO LOCKER')) {
+    return 'Valid RTS - Locker unavailable. Amazon considers this a legitimate return. (<1% approval rate)'
+  }
+  if (upperCode.includes('CUSTOMER') || upperCode.includes('REFUSED')) {
+    return 'Valid RTS - Customer unavailable/refused. Amazon considers this a legitimate return. (<1% approval rate)'
+  }
+  if (upperCode.includes('ACCESS') || upperCode.includes('GATE') || upperCode.includes('LOCKED')) {
+    return 'Valid RTS - Access issue. Amazon considers this a legitimate return. (<1% approval rate)'
+  }
+  if (upperCode.includes('WEATHER') || upperCode.includes('EMERGENCY')) {
+    return 'Valid RTS - Weather/emergency. Amazon considers this a legitimate return. (<1% approval rate)'
+  }
+
+  return 'Low confidence - Historical rejection rate for this RTS code is very high (<1% approval).'
 }
 
 // Assign priority tier based on RTS code
 export function assignRTSPriority(rtsCode: string): 1 | 2 | 3 {
-  const upperCode = rtsCode.toUpperCase()
+  // Auto-exempted codes get lowest priority (they don't need disputes)
+  if (isAutoExempted(rtsCode)) {
+    return 3
+  }
 
-  // Tier 1: Clear exemption cases
-  if (upperCode === 'BUSINESS CLOSED' ||
-      upperCode.includes('BUSINESS CLOSED') ||
-      upperCode === 'NO LOCKER AVAILABLE' ||
-      upperCode.includes('LOCKER')) {
+  // Still disputable cases get highest priority
+  if (isStillDisputable(rtsCode)) {
     return 1
   }
 
-  // Tier 2: Time-based issues
-  if (upperCode === 'OODT' ||
-      upperCode.includes('OUT OF DELIVERY TIME') ||
-      upperCode.includes('TIME')) {
-    return 2
-  }
-
-  // Tier 3: Manual review required
+  // Everything else is low priority (likely to be rejected)
   return 3
 }
 
 // Generate dispute reason based on RTS code
-// Updated to match Amazon's approved dispute language for high-confidence cases
-export function generateRTSDisputeReason(rtsCode: string): { reason: string; requiresManualReview: boolean; confidence: 'high' | 'low' } {
+export function generateRTSDisputeReason(rtsCode: string): {
+  reason: string
+  requiresManualReview: boolean
+  confidence: 'high' | 'low' | 'auto-exempted'
+  isAutoExempted: boolean
+} {
   const upperCode = rtsCode.toUpperCase()
 
-  // HIGH CONFIDENCE: Package not on van - Amazon approves these
-  if (isHighConfidenceDispute(rtsCode)) {
+  // AUTO-EXEMPTED: No dispute needed
+  if (isAutoExempted(rtsCode)) {
     return {
-      reason: 'Package was removed from, or never on, the Delivery Associate\'s van. This is a logistics/loading issue and should not negatively impact the DCR metric.',
+      reason: '⚠️ NO DISPUTE NEEDED - This RTS code is now AUTO-EXEMPTED by Amazon (effective March 11, 2026). Amazon automatically exempts "Package Not on Van" and rerouted packages.',
       requiresManualReview: false,
-      confidence: 'high'
+      confidence: 'auto-exempted',
+      isAutoExempted: true
+    }
+  }
+
+  // STILL DISPUTABLE: Rare cases that may be approved
+  if (isStillDisputable(rtsCode)) {
+    return {
+      reason: 'Package was delivered on the same day as Planned Delivery Date but incorrectly marked as RTS. Request verification that TBA was successfully delivered.',
+      requiresManualReview: false,
+      confidence: 'high',
+      isAutoExempted: false
     }
   }
 
   // LOW CONFIDENCE: Valid RTS scenarios - Amazon rejects these disputes
-  // Still generate reason but mark as low confidence
   if (upperCode === 'BUSINESS CLOSED' || upperCode.includes('BUSINESS CLOSED')) {
     return {
-      reason: 'Business was closed during attempted delivery. Delivery window did not align with business operating hours.',
+      reason: 'Business was closed during attempted delivery. ⚠️ LOW APPROVAL RATE - Amazon typically rejects this as a valid RTS.',
       requiresManualReview: false,
-      confidence: 'low'
+      confidence: 'low',
+      isAutoExempted: false
     }
   }
 
   if (upperCode === 'NO LOCKER AVAILABLE' || upperCode.includes('LOCKER')) {
     return {
-      reason: 'Amazon Locker was full/unavailable at time of delivery attempt. Driver followed correct RTS procedure.',
+      reason: 'Amazon Locker was full/unavailable. ⚠️ LOW APPROVAL RATE - Amazon typically rejects this as a valid RTS.',
       requiresManualReview: false,
-      confidence: 'low'
-    }
-  }
-
-  if (upperCode === 'OODT' || upperCode.includes('OUT OF DELIVERY TIME')) {
-    return {
-      reason: 'Package returned due to delivery window constraints. Route optimization may have affected delivery timing.',
-      requiresManualReview: false,
-      confidence: 'low'
+      confidence: 'low',
+      isAutoExempted: false
     }
   }
 
   if (upperCode.includes('CUSTOMER') || upperCode.includes('REFUSED')) {
     return {
-      reason: 'Customer was unavailable or refused delivery. Driver followed correct RTS procedure.',
+      reason: 'Customer was unavailable or refused delivery. ⚠️ LOW APPROVAL RATE - Amazon typically rejects this as a valid RTS.',
       requiresManualReview: false,
-      confidence: 'low'
+      confidence: 'low',
+      isAutoExempted: false
     }
   }
 
   if (upperCode.includes('ACCESS') || upperCode.includes('GATE') || upperCode.includes('LOCKED')) {
     return {
-      reason: 'Unable to access delivery location due to access restrictions.',
+      reason: 'Unable to access delivery location. ⚠️ LOW APPROVAL RATE - Amazon typically rejects this as a valid RTS.',
       requiresManualReview: false,
-      confidence: 'low'
+      confidence: 'low',
+      isAutoExempted: false
     }
   }
 
   if (upperCode.includes('WEATHER') || upperCode.includes('EMERGENCY')) {
     return {
-      reason: 'Return due to weather or emergency conditions.',
+      reason: 'Return due to weather or emergency conditions. ⚠️ LOW APPROVAL RATE - Amazon typically rejects without Tier 2+ weather event.',
       requiresManualReview: false,
-      confidence: 'low'
+      confidence: 'low',
+      isAutoExempted: false
     }
   }
 
-  // Unknown codes - mark for manual review, low confidence
+  // Unknown codes - mark for manual review
   return {
-    reason: `MANUAL REVIEW - RTS Code: ${rtsCode}. Review delivery details for exemption eligibility.`,
+    reason: `MANUAL REVIEW - RTS Code: ${rtsCode}. Check if this was delivered same day but marked RTS incorrectly.`,
     requiresManualReview: true,
-    confidence: 'low'
+    confidence: 'low',
+    isAutoExempted: false
   }
 }
 
@@ -189,20 +241,40 @@ export function processRTSDisputes(rows: RTSRow[]): RTSDispute[] {
       priority,
       plannedDate: row.plannedDeliveryDate,
       requiresManualReview,
-      confidence
+      confidence: confidence === 'auto-exempted' ? 'low' : confidence
     }
   })
 }
 
-// Process only high-confidence disputes (recommended for submission)
+// Get only disputes worth submitting (excludes auto-exempted)
+export function getDisputableItems(rows: RTSRow[]): RTSRow[] {
+  return rows.filter(row => !isAutoExempted(row.rtsCode))
+}
+
+// Get auto-exempted items (no dispute needed)
+export function getAutoExemptedItems(rows: RTSRow[]): RTSFilteredItem[] {
+  return rows
+    .filter(row => isAutoExempted(row.rtsCode))
+    .map(row => ({
+      trackingId: row.trackingId,
+      driver: row.deliveryAssociate,
+      driverId: row.transporterId,
+      rtsCode: row.rtsCode,
+      plannedDate: row.plannedDeliveryDate,
+      skipReason: getSkipReason(row.rtsCode)
+    }))
+}
+
+// Process only high-confidence disputes (rare after March 11)
 export function processHighConfidenceDisputes(rows: RTSRow[]): RTSDispute[] {
-  return processRTSDisputes(rows).filter(dispute => dispute.confidence === 'high')
+  const disputableRows = rows.filter(row => isStillDisputable(row.rtsCode))
+  return processRTSDisputes(disputableRows)
 }
 
 // Get filtered items (low-confidence disputes that should NOT be submitted)
 export function getFilteredItems(rows: RTSRow[]): RTSFilteredItem[] {
   return rows
-    .filter(row => !isHighConfidenceDispute(row.rtsCode))
+    .filter(row => !isStillDisputable(row.rtsCode))
     .map(row => ({
       trackingId: row.trackingId,
       driver: row.deliveryAssociate,
@@ -218,6 +290,10 @@ export function sortRTSDisputes(disputes: RTSDispute[]): RTSDispute[] {
     // Sort by priority ascending (1 is highest priority)
     if (a.priority !== b.priority) {
       return a.priority - b.priority
+    }
+    // Then by confidence (high first)
+    if (a.confidence !== b.confidence) {
+      return a.confidence === 'high' ? -1 : 1
     }
     // Then by manual review (non-manual first)
     if (a.requiresManualReview !== b.requiresManualReview) {
@@ -299,7 +375,10 @@ export function buildRTSSummary(
     }
   }
 
-  // Calculate already exempted count
+  // Calculate auto-exempted count (new for March 2026)
+  const autoExemptedCount = allRows.filter(r => isAutoExempted(r.rtsCode)).length
+
+  // Calculate already exempted count (from Amazon's exemption reason field)
   const alreadyExemptedCount = allRows.length - disputeableRows.length
 
   return {
@@ -316,6 +395,8 @@ export function buildRTSSummary(
     lowConfidenceBreakdown,
     repeatDrivers: detectRTSRepeatDrivers(disputeableRows),
     station,
-    week
-  }
+    week,
+    // New field for March 2026
+    autoExemptedByAmazonCount: autoExemptedCount
+  } as RTSSummary
 }

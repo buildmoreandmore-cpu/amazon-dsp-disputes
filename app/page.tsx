@@ -154,6 +154,23 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* March 2026 Update Banner */}
+      <section className="relative z-10 border-t border-amber-500/30 bg-amber-500/5">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-left">
+            <span className="px-3 py-1 bg-amber-500/20 text-amber-400 text-xs font-bold rounded-full uppercase tracking-wider">
+              Q1 2026 Update
+            </span>
+            <p className="text-neutral-300 text-sm">
+              <strong>New thresholds effective March 11:</strong> Fantastic 73+ (was 70), DSB 233 DPMO (was 259). DCR &quot;Package Not on Van&quot; now auto-exempted.
+            </p>
+            <Link href="/tool" className="text-amber-400 hover:text-amber-300 text-sm font-medium whitespace-nowrap">
+              See details &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Stats Bar */}
       <section className="relative z-10 border-t border-b border-neutral-800 bg-neutral-900/50 backdrop-blur">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
@@ -234,9 +251,12 @@ export default function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3">DCR/RTS Disputes</h3>
+              <div className="flex items-center gap-2 mb-3">
+                <h3 className="text-xl font-semibold">DCR/RTS Disputes</h3>
+                <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs font-medium rounded-full">Updated</span>
+              </div>
               <p className="text-neutral-400 leading-relaxed">
-                Smart confidence scoring for Return-to-Station disputes. Focuses on high-approval cases like &ldquo;Package Not On Van&rdquo; scenarios.
+                <strong className="text-amber-400">March 2026:</strong> Amazon now auto-exempts most &ldquo;Package Not On Van&rdquo; cases. We show which disputes still need filing vs which are handled automatically.
               </p>
               <div className="mt-6 pt-6 border-t border-neutral-800">
                 <code className="text-sm text-amber-400 bg-neutral-800 px-3 py-1.5 rounded-full">
@@ -333,30 +353,37 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* DCR Confidence Preview */}
+            {/* DCR Breakdown Preview */}
             <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
               <div className="flex items-center gap-2 mb-6">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm text-neutral-400 font-medium">DCR Confidence Preview</span>
+                <span className="text-sm text-neutral-400 font-medium">DCR Smart Analysis (March 2026)</span>
               </div>
               <div className="space-y-4">
-                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-5">
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-5">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-green-400 font-semibold">High Confidence</span>
-                    <span className="text-green-400 font-bold text-2xl">12</span>
+                    <span className="text-emerald-400 font-semibold">Auto-Exempted by Amazon</span>
+                    <span className="text-emerald-400 font-bold text-2xl">85</span>
                   </div>
-                  <p className="text-neutral-400 text-sm">Package Not On Van - These have high approval rates</p>
+                  <p className="text-neutral-400 text-sm">Object Missing, OODT - No dispute needed anymore</p>
                 </div>
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5">
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-5">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-amber-400 font-semibold">Low Confidence</span>
-                    <span className="text-amber-400 font-bold text-2xl">85</span>
+                    <span className="text-blue-400 font-semibold">Still Disputable</span>
+                    <span className="text-blue-400 font-bold text-2xl">3</span>
                   </div>
-                  <p className="text-neutral-400 text-sm">Business Closed, OODT - Skip these, &lt;1% approval rate</p>
+                  <p className="text-neutral-400 text-sm">Delivered same day but marked RTS - Worth disputing</p>
+                </div>
+                <div className="bg-neutral-800/50 border border-neutral-700 rounded-xl p-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-neutral-400 font-semibold">Not Worth Disputing</span>
+                    <span className="text-neutral-400 font-bold text-2xl">12</span>
+                  </div>
+                  <p className="text-neutral-500 text-sm">Business Closed, Customer Refused - &lt;1% approval rate</p>
                 </div>
               </div>
               <div className="mt-6 pt-6 border-t border-neutral-800 text-center">
-                <p className="text-neutral-500 text-sm">Based on actual Amazon approval data</p>
+                <p className="text-neutral-500 text-sm">We tell you exactly which disputes are worth your time</p>
               </div>
             </div>
           </div>

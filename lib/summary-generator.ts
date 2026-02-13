@@ -147,10 +147,15 @@ export function generateRTSMarkdownSummary(summary: RTSSummary): string {
   lines.push(`**Station:** ${summary.station} | **Week:** ${summary.week}`)
   lines.push('')
 
-  // Key insight box
-  lines.push(`> **Strategy Update:** This tool now focuses on HIGH-CONFIDENCE disputes only.`)
-  lines.push(`> Based on Amazon feedback (4/407 approvals = <1% rate), we now only flag disputes for`)
-  lines.push(`> "Package Not On Van" scenarios, which Amazon typically approves.`)
+  // MARCH 2026 UPDATE WARNING
+  lines.push(`> ⚠️ **IMPORTANT: March 11, 2026 Amazon Update**`)
+  lines.push(`> `)
+  lines.push(`> Amazon now **AUTO-EXEMPTS** most "Package Not on Van" cases:`)
+  lines.push(`> - Packages rerouted while driver on route (OODT, RTS-Other)`)
+  lines.push(`> - "Object Missing" packages later delivered by another DA`)
+  lines.push(`> `)
+  lines.push(`> **You no longer need to dispute these cases** - Amazon handles them automatically.`)
+  lines.push(`> Focus disputes on rare cases: packages delivered same day but incorrectly marked RTS.`)
   lines.push('')
 
   lines.push(`## Overview`)
@@ -159,18 +164,28 @@ export function generateRTSMarkdownSummary(summary: RTSSummary): string {
   lines.push(`|--------|-------|`)
   lines.push(`| Total RTS | ${summary.totalRTS} |`)
   lines.push(`| Impacts DCR | ${summary.impactsDCRCount} |`)
-  lines.push(`| Already Exempted | ${summary.alreadyExemptedCount} |`)
-  lines.push(`| **High-Confidence (Recommended)** | **${summary.highConfidenceCount}** |`)
-  lines.push(`| Low-Confidence (Not Recommended) | ${summary.lowConfidenceCount} |`)
+  lines.push(`| ✓ Auto-Exempted by Amazon | ${summary.autoExemptedByAmazonCount || 0} |`)
+  lines.push(`| Already Exempted (other) | ${summary.alreadyExemptedCount} |`)
+  lines.push(`| Worth Disputing | ${summary.highConfidenceCount} |`)
+  lines.push(`| Not Worth Disputing | ${summary.lowConfidenceCount} |`)
   lines.push('')
 
-  lines.push(`## Dispute Confidence Breakdown`)
+  // Show savings
+  const autoExempted = summary.autoExemptedByAmazonCount || 0
+  if (autoExempted > 0) {
+    lines.push(`### Time Saved`)
+    lines.push(``)
+    lines.push(`**${autoExempted} disputes** you don't need to file - Amazon auto-exempts them.`)
+    lines.push('')
+  }
+
+  lines.push(`## Dispute Breakdown`)
   lines.push('')
-  lines.push(`### High-Confidence Disputes (SUBMIT THESE)`)
+  lines.push(`### ✓ Auto-Exempted by Amazon (NO DISPUTE NEEDED)`)
   lines.push('')
-  lines.push(`These are "Package Not On Van" cases. Amazon approves disputes when:`)
-  lines.push(`- TBA was removed from, or never on, the Delivery Associate's van`)
-  lines.push(`- RTS marked erroneously (package was actually delivered same day)`)
+  lines.push(`These RTS codes are now automatically exempted as of March 11, 2026:`)
+  lines.push(`- OBJECT MISSING, PACKAGE NOT FOUND, NOT IN VAN, MISROUTE`)
+  lines.push(`- OODT, RTS-OTHER (packages rerouted while driver on route)`)
   lines.push('')
 
   const sortedHighConfidence = Object.entries(summary.highConfidenceBreakdown || {})

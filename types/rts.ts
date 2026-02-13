@@ -50,6 +50,8 @@ export interface RTSSummary {
   repeatDrivers: RTSRepeatDriver[]
   station: string
   week: string
+  // March 2026 update: Amazon now auto-exempts "Package Not on Van" cases
+  autoExemptedByAmazonCount?: number
 }
 
 export interface RTSRepeatDriver {
