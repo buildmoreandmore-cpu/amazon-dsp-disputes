@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { FileUpload } from '@/components/FileUpload'
 import { StatsDashboard } from '@/components/StatsDashboard'
@@ -36,6 +36,13 @@ export default function ToolPage() {
   const [markdownSummary, setMarkdownSummary] = useState<string>('')
   const [outputFilename, setOutputFilename] = useState<string>('')
   const [enriched, setEnriched] = useState(false)
+  const [isLocalhost, setIsLocalhost] = useState(false)
+
+  useEffect(() => {
+    setIsLocalhost(
+      window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    )
+  }, [])
 
   const handleEnrichComplete = useCallback((results: Map<string, DCMDeliveryData>) => {
     if (category !== 'feedback') return
@@ -293,7 +300,7 @@ export default function ToolPage() {
               <DisputePreview disputes={disputes} category={category} />
 
               {/* Next step: Enrich or Skip — for feedback on localhost */}
-              {category === 'feedback' && !enriched && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (
+              {category === 'feedback' && !enriched && isLocalhost ? (
                 <div className="space-y-6 pt-6 border-t border-neutral-800">
                   <div className="text-center">
                     <h2 className="text-xl font-bold text-white mb-2">What would you like to do next?</h2>
