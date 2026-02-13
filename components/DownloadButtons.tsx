@@ -123,7 +123,7 @@ export function DownloadButtons({
           The &ldquo;Additional Evidence&rdquo; column contains data pulled automatically from Amazon&apos;s Delivery Contrast Map &mdash; GPS coordinates, geo-fence status, delivery distance, and photo proof.
         </p>
         <p className="text-neutral-400 text-xs">
-          If the column is empty, go back to the Review step and click <span className="text-emerald-400 font-medium">&ldquo;Enrich with DCM Evidence&rdquo;</span> to auto-fill it. You&apos;ll need to run <code className="text-emerald-400 bg-neutral-800 px-1.5 py-0.5 rounded">npm run scraper</code> in a separate terminal first.
+          If the column is empty, go back to the Review step and click <span className="text-emerald-400 font-medium">&ldquo;Enrich with DCM Evidence&rdquo;</span> to auto-fill it. The scraper starts automatically with your dev server.
         </p>
       </div>
 

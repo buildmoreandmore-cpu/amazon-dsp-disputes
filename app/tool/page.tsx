@@ -292,28 +292,58 @@ export default function ToolPage() {
               <StatsDashboard summary={summary} category={category} />
               <DisputePreview disputes={disputes} category={category} />
 
-              {/* DCM Enrichment — only shows for feedback category on localhost */}
-              {category === 'feedback' && (
-                <DCMEnrichButton
-                  trackingIds={(disputes as FeedbackDispute[]).map(d => d.trackingId)}
-                  onEnrichComplete={handleEnrichComplete}
-                />
-              )}
+              {/* Next step: Enrich or Skip — for feedback on localhost */}
+              {category === 'feedback' && !enriched && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (
+                <div className="space-y-6 pt-6 border-t border-neutral-800">
+                  <div className="text-center">
+                    <h2 className="text-xl font-bold text-white mb-2">What would you like to do next?</h2>
+                    <p className="text-sm text-neutral-400">
+                      You can enrich your disputes with real delivery evidence from Amazon, or skip straight to download.
+                    </p>
+                  </div>
 
-              <div className="flex items-center justify-between pt-6 border-t border-neutral-800">
-                <button
-                  onClick={handleBackToUpload}
-                  className="px-4 py-2 text-neutral-400 hover:text-white transition-colors font-medium"
-                >
-                  Upload a different file
-                </button>
-                <button
-                  onClick={() => setStep('download')}
-                  className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold"
-                >
-                  Continue to Download
-                </button>
-              </div>
+                  <DCMEnrichButton
+                    trackingIds={(disputes as FeedbackDispute[]).map(d => d.trackingId)}
+                    onEnrichComplete={handleEnrichComplete}
+                  />
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 h-px bg-neutral-800" />
+                    <span className="text-xs text-neutral-600 uppercase tracking-wider">or</span>
+                    <div className="flex-1 h-px bg-neutral-800" />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={handleBackToUpload}
+                      className="px-4 py-2 text-neutral-400 hover:text-white transition-colors font-medium text-sm"
+                    >
+                      Upload a different file
+                    </button>
+                    <button
+                      onClick={() => setStep('download')}
+                      className="px-6 py-3 bg-neutral-800 text-white rounded-full hover:bg-neutral-700 transition-colors font-medium border border-neutral-700"
+                    >
+                      Skip &amp; Continue to Download
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between pt-6 border-t border-neutral-800">
+                  <button
+                    onClick={handleBackToUpload}
+                    className="px-4 py-2 text-neutral-400 hover:text-white transition-colors font-medium"
+                  >
+                    Upload a different file
+                  </button>
+                  <button
+                    onClick={() => setStep('download')}
+                    className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold"
+                  >
+                    {enriched ? 'Download Enriched File' : 'Continue to Download'}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

@@ -292,22 +292,22 @@ export default function LandingPage() {
                 <div className="flex gap-3 bg-neutral-800/50 rounded-xl p-4">
                   <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold">1</div>
                   <div>
-                    <h4 className="text-sm font-semibold text-neutral-200">Run the scraper</h4>
-                    <p className="text-xs text-neutral-500 mt-0.5">Start the local scraper server with one command</p>
+                    <h4 className="text-sm font-semibold text-neutral-200">Click &ldquo;Enrich&rdquo;</h4>
+                    <p className="text-xs text-neutral-500 mt-0.5">After reviewing your disputes, click the enrich button</p>
                   </div>
                 </div>
                 <div className="flex gap-3 bg-neutral-800/50 rounded-xl p-4">
                   <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-sm font-bold">2</div>
                   <div>
-                    <h4 className="text-sm font-semibold text-neutral-200">Log in to Amazon once</h4>
-                    <p className="text-xs text-neutral-500 mt-0.5">A browser window opens &mdash; sign in as usual, including MFA</p>
+                    <h4 className="text-sm font-semibold text-neutral-200">Log in to Amazon</h4>
+                    <p className="text-xs text-neutral-500 mt-0.5">A browser opens &mdash; sign in as usual, including MFA</p>
                   </div>
                 </div>
                 <div className="flex gap-3 bg-neutral-800/50 rounded-xl p-4">
                   <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm font-bold">3</div>
                   <div>
-                    <h4 className="text-sm font-semibold text-neutral-200">Click &ldquo;Enrich&rdquo; and watch</h4>
-                    <p className="text-xs text-neutral-500 mt-0.5">Every TBA is looked up automatically with real-time progress</p>
+                    <h4 className="text-sm font-semibold text-neutral-200">Scraping runs automatically</h4>
+                    <p className="text-xs text-neutral-500 mt-0.5">Every TBA is looked up with real-time progress after you log in</p>
                   </div>
                 </div>
                 <div className="flex gap-3 bg-neutral-800/50 rounded-xl p-4">
