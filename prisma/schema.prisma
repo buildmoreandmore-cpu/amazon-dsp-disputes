@@ -48,3 +48,20 @@ model EvidencePattern {
 
   @@unique([disputeType, patternKey])
 }
+
+model DCMCache {
+  id                String   @id @default(cuid())
+  trackingId        String   @unique
+  gpsLatitude       Float?
+  gpsLongitude      Float?
+  geoFenceStatus    String?
+  distanceFromPin   Float?
+  photoUrl          String?
+  deliveryTimestamp String?
+  deliveryLocation  String?
+  podStatus         String?
+  scrapedAt         DateTime @default(now())
+
+  @@index([trackingId])
+  @@index([scrapedAt])
+}

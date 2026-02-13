@@ -4,7 +4,7 @@ import { extractStationAndWeek } from '@/lib/csv-parser'
 import { processFeedbackDisputes, sortFeedbackDisputes, buildFeedbackSummary } from '@/lib/engines/feedback-engine'
 import { generateFeedbackXLSX, generateOutputFilename } from '@/lib/xlsx-generator'
 import { generateFeedbackMarkdownSummary } from '@/lib/summary-generator'
-import type { FeedbackApiResponse } from '@/types'
+import type { FeedbackApiResponse, FeedbackDispute } from '@/types'
 
 export async function POST(request: NextRequest): Promise<NextResponse<FeedbackApiResponse>> {
   try {
@@ -71,6 +71,33 @@ export async function POST(request: NextRequest): Promise<NextResponse<FeedbackA
     console.error('Error processing feedback disputes:', error)
     return NextResponse.json(
       { success: false, error: 'An unexpected error occurred while processing the file.' },
+      { status: 500 }
+    )
+  }
+}
+
+/**
+ * PUT: Re-generate XLSX from enriched disputes (with DCM evidence).
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { disputes } = body as { disputes: FeedbackDispute[] }
+
+    if (!Array.isArray(disputes)) {
+      return NextResponse.json(
+        { success: false, error: 'disputes must be an array' },
+        { status: 400 }
+      )
+    }
+
+    const xlsxBase64 = generateFeedbackXLSX(disputes)
+
+    return NextResponse.json({ success: true, xlsxBase64 })
+  } catch (error) {
+    console.error('Error regenerating XLSX:', error)
+    return NextResponse.json(
+      { success: false, error: 'Failed to regenerate XLSX' },
       { status: 500 }
     )
   }

@@ -1,13 +1,41 @@
-import type { FeedbackRow, FeedbackDispute, FeedbackSummary, FeedbackRepeatDriver } from '@/types'
+import type { FeedbackRow, FeedbackDispute, FeedbackSummary, FeedbackRepeatDriver, DCMDeliveryData } from '@/types'
+import { formatDCMEvidence, enhanceReasonWithDCM } from '@/lib/scraper/evidence-formatter'
 
-// Determine the primary feedback type from flags
+// Keyword-based classification rules (checked in order, first match wins)
+const FEEDBACK_CLASSIFICATION_RULES: { pattern: string; type: string }[] = [
+  // Tier 1 — Wrong Address
+  { pattern: 'delivered to neighboring address', type: 'Wrong Address' },
+  { pattern: 'delivered to wrong street address', type: 'Wrong Address' },
+  { pattern: 'delivered to wrong unit number', type: 'Wrong Address' },
+  { pattern: 'delivered to wrong address', type: 'Wrong Address' },
+  { pattern: 'received someone else\'s package', type: 'Wrong Address' },
+  // Tier 1 — Never Received
+  { pattern: 'never received delivery', type: 'Never Received' },
+  { pattern: 'never received', type: 'Never Received' },
+  // Tier 2 — Didn't Follow Instructions
+  { pattern: 'package not left in specific place i requested', type: 'Didn\'t Follow Instructions' },
+  { pattern: 'did not follow instructions', type: 'Didn\'t Follow Instructions' },
+  { pattern: 'package is not in location shown in delivery photo', type: 'Didn\'t Follow Instructions' },
+  { pattern: 'package not left in appropriate location', type: 'Didn\'t Follow Instructions' },
+  { pattern: 'not follow', type: 'Didn\'t Follow Instructions' },
+  // Tier 3 — Unprofessional
+  { pattern: 'driver walked on grass', type: 'Unprofessional' },
+  { pattern: 'unprofessional', type: 'Unprofessional' },
+  // Tier 3 — Mishandled Package
+  { pattern: 'driver threw package', type: 'Mishandled Package' },
+  { pattern: 'mishandled package', type: 'Mishandled Package' },
+  // Tier 3 — Wrong Item
+  { pattern: 'wrong item', type: 'Wrong Item' },
+]
+
+// Determine the primary feedback type from feedbackDetails text
 export function getFeedbackType(row: FeedbackRow): string {
-  if (row.wrongAddress) return 'Wrong Address'
-  if (row.neverReceived) return 'Never Received'
-  if (row.didNotFollowInstructions) return 'Didn\'t Follow Instructions'
-  if (row.mishandledPackage) return 'Mishandled Package'
-  if (row.unprofessional) return 'Unprofessional'
-  if (row.wrongItem) return 'Wrong Item'
+  const text = row.feedbackDetails.toLowerCase()
+  for (const rule of FEEDBACK_CLASSIFICATION_RULES) {
+    if (text.includes(rule.pattern)) {
+      return rule.type
+    }
+  }
   return 'Unknown'
 }
 
@@ -88,7 +116,8 @@ export function processFeedbackDisputes(rows: FeedbackRow[]): FeedbackDispute[] 
       feedbackDetails: row.feedbackDetails,
       reason,
       priority,
-      deliveryDate: row.deliveryDate,
+      address: row.address,
+      customerNotes: row.customerNotes,
       requiresManualReview
     }
   })
@@ -176,4 +205,29 @@ export function buildFeedbackSummary(
     station,
     week
   }
+}
+
+/**
+ * Enrich feedback disputes with DCM (Delivery Contrast Map) evidence.
+ * Populates `additionalEvidence` and `dcmData` fields, and enhances
+ * the `reason` field with real GPS/geo-fence data.
+ */
+export function enrichFeedbackDisputesWithDCM(
+  disputes: FeedbackDispute[],
+  dcmResults: Map<string, DCMDeliveryData>
+): FeedbackDispute[] {
+  return disputes.map(dispute => {
+    const dcmData = dcmResults.get(dispute.trackingId)
+    if (!dcmData) return dispute
+
+    const additionalEvidence = formatDCMEvidence(dcmData)
+    const enhancedReason = enhanceReasonWithDCM(dispute.reason, dcmData)
+
+    return {
+      ...dispute,
+      reason: enhancedReason,
+      additionalEvidence,
+      dcmData,
+    }
+  })
 }

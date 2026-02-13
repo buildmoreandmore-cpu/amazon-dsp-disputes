@@ -1,25 +1,48 @@
 import { parse } from 'csv-parse/sync'
 import type { FeedbackRow } from '@/types'
 
+// Legacy boolean columns from old Amazon format
+const LEGACY_BOOLEAN_COLUMNS = [
+  'DA Mishandled Package',
+  'DA was Unprofessional',
+  'DA did not follow my delivery instructions',
+  'Delivered to Wrong Address',
+  'Never Received Delivery',
+  'Received Wrong Item'
+]
+
 function parseBooleanField(value: string | undefined): boolean {
   if (!value || value === '' || value === '-') return false
   return value === '1' || value.toLowerCase() === 'true' || value.toLowerCase() === 'yes'
 }
 
-function mapRowToTyped(rawRow: Record<string, string>): FeedbackRow {
+function isLegacyFormat(headers: string[]): boolean {
+  return LEGACY_BOOLEAN_COLUMNS.some(col => headers.includes(col))
+}
+
+function synthesizeFeedbackDetails(rawRow: Record<string, string>): string {
+  if (parseBooleanField(rawRow['Delivered to Wrong Address'])) return 'Delivered to Wrong Address'
+  if (parseBooleanField(rawRow['Never Received Delivery'])) return 'Never Received Delivery'
+  if (parseBooleanField(rawRow['DA did not follow my delivery instructions'])) return 'Did not follow instructions'
+  if (parseBooleanField(rawRow['DA Mishandled Package'])) return 'DA Mishandled Package'
+  if (parseBooleanField(rawRow['DA was Unprofessional'])) return 'Driver was unprofessional'
+  if (parseBooleanField(rawRow['Received Wrong Item'])) return 'Received Wrong Item'
+  return rawRow['Feedback Details'] || ''
+}
+
+function mapRowToTyped(rawRow: Record<string, string>, legacy: boolean): FeedbackRow {
+  const feedbackDetails = legacy
+    ? (rawRow['Feedback Details'] || synthesizeFeedbackDetails(rawRow))
+    : (rawRow['Feedback Details'] || '')
+
   return {
-    deliveryGroupId: rawRow['Delivery Group ID'] || '',
     deliveryAssociate: rawRow['Delivery Associate'] || '',
     deliveryAssociateName: rawRow['Delivery Associate Name'] || '',
-    mishandledPackage: parseBooleanField(rawRow['DA Mishandled Package']),
-    unprofessional: parseBooleanField(rawRow['DA was Unprofessional']),
-    didNotFollowInstructions: parseBooleanField(rawRow['DA did not follow my delivery instructions']),
-    wrongAddress: parseBooleanField(rawRow['Delivered to Wrong Address']),
-    neverReceived: parseBooleanField(rawRow['Never Received Delivery']),
-    wrongItem: parseBooleanField(rawRow['Received Wrong Item']),
-    feedbackDetails: rawRow['Feedback Details'] || '',
+    feedbackDetails,
     trackingId: rawRow['Tracking ID'] || '',
-    deliveryDate: rawRow['Delivery Date'] || ''
+    address: rawRow['Address'] || '',
+    customerNotes: rawRow['Customer Notes'] || '',
+    reasonForDispute: rawRow['Reason for Dispute'] || ''
   }
 }
 
@@ -31,7 +54,12 @@ export function parseFeedbackCSV(csvContent: string): FeedbackRow[] {
     bom: true
   }) as Record<string, string>[]
 
-  return records.map(mapRowToTyped)
+  if (records.length === 0) return []
+
+  const headers = Object.keys(records[0])
+  const legacy = isLegacyFormat(headers)
+
+  return records.map(row => mapRowToTyped(row, legacy))
 }
 
 export function validateFeedbackCSV(rows: FeedbackRow[]): { valid: boolean; errors: string[] } {

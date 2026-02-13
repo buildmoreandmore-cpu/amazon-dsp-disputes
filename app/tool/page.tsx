@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { FileUpload } from '@/components/FileUpload'
 import { StatsDashboard } from '@/components/StatsDashboard'
 import { DisputePreview } from '@/components/DisputePreview'
 import { DownloadButtons } from '@/components/DownloadButtons'
 import { CategorySelector } from '@/components/CategorySelector'
+import { DCMEnrichButton } from '@/components/DCMEnrichButton'
 import { ChevronLeftIcon, BookOpenIcon } from '@/components/Icons'
 import type {
   DisputeCategory,
@@ -15,7 +16,8 @@ import type {
   FeedbackDispute,
   FeedbackSummary,
   RTSDispute,
-  RTSSummary
+  RTSSummary,
+  DCMDeliveryData
 } from '@/types'
 
 type Step = 'category' | 'upload' | 'preview' | 'download'
@@ -33,6 +35,46 @@ export default function ToolPage() {
   const [xlsxBase64, setXlsxBase64] = useState<string>('')
   const [markdownSummary, setMarkdownSummary] = useState<string>('')
   const [outputFilename, setOutputFilename] = useState<string>('')
+  const [enriched, setEnriched] = useState(false)
+
+  const handleEnrichComplete = useCallback((results: Map<string, DCMDeliveryData>) => {
+    if (category !== 'feedback') return
+
+    // Apply DCM evidence to feedback disputes
+    const enrichedDisputes = (disputes as FeedbackDispute[]).map(d => {
+      const dcmData = results.get(d.trackingId)
+      if (!dcmData) return d
+
+      const parts: string[] = []
+      if (dcmData.geoFenceStatus) parts.push(`Geo-fence: ${dcmData.geoFenceStatus}`)
+      if (dcmData.distanceFromPin != null) parts.push(`Distance: ${dcmData.distanceFromPin}m`)
+      if (dcmData.gpsLatitude != null && dcmData.gpsLongitude != null) {
+        parts.push(`GPS: ${dcmData.gpsLatitude}, ${dcmData.gpsLongitude}`)
+      }
+      if (dcmData.deliveryTimestamp) parts.push(`Delivered: ${dcmData.deliveryTimestamp}`)
+      if (dcmData.podStatus) parts.push(`POD: ${dcmData.podStatus}`)
+      else if (dcmData.photoUrl) parts.push('POD: Available')
+
+      const additionalEvidence = parts.join(' | ')
+
+      return { ...d, additionalEvidence, dcmData }
+    })
+
+    setDisputes(enrichedDisputes)
+    setEnriched(true)
+
+    // Re-generate XLSX with evidence
+    fetch('/api/process-feedback', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ disputes: enrichedDisputes }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.xlsxBase64) setXlsxBase64(data.xlsxBase64)
+      })
+      .catch(() => {})
+  }, [category, disputes])
 
   const getApiEndpoint = (cat: DisputeCategory): string => {
     const endpoints: Record<DisputeCategory, string> = {
@@ -249,6 +291,14 @@ export default function ToolPage() {
               </div>
               <StatsDashboard summary={summary} category={category} />
               <DisputePreview disputes={disputes} category={category} />
+
+              {/* DCM Enrichment — only shows for feedback category on localhost */}
+              {category === 'feedback' && (
+                <DCMEnrichButton
+                  trackingIds={(disputes as FeedbackDispute[]).map(d => d.trackingId)}
+                  onEnrichComplete={handleEnrichComplete}
+                />
+              )}
 
               <div className="flex items-center justify-between pt-6 border-t border-neutral-800">
                 <button

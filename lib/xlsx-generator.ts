@@ -22,9 +22,10 @@ interface FeedbackXLSXRow {
   'Driver': string
   'Feedback Type': string
   'Feedback Details': string
+  'Address': string
+  'Customer Notes': string
   'Dispute Reason': string
   'Priority': number
-  'Delivery Date': string
   'Additional Evidence': string
 }
 
@@ -83,10 +84,11 @@ export function generateFeedbackXLSX(disputes: FeedbackDispute[]): string {
     'Driver': d.driver,
     'Feedback Type': d.feedbackType,
     'Feedback Details': d.feedbackDetails,
+    'Address': d.address,
+    'Customer Notes': d.customerNotes,
     'Dispute Reason': d.reason,
     'Priority': d.priority,
-    'Delivery Date': d.deliveryDate,
-    'Additional Evidence': ''
+    'Additional Evidence': d.additionalEvidence || ''
   }))
 
   const workbook = XLSX.utils.book_new()
@@ -97,10 +99,11 @@ export function generateFeedbackXLSX(disputes: FeedbackDispute[]): string {
     { wch: 25 },  // Driver
     { wch: 22 },  // Feedback Type
     { wch: 50 },  // Feedback Details
+    { wch: 40 },  // Address
+    { wch: 30 },  // Customer Notes
     { wch: 80 },  // Dispute Reason
     { wch: 8 },   // Priority
-    { wch: 14 },  // Delivery Date
-    { wch: 50 }   // Additional Evidence
+    { wch: 60 }   // Additional Evidence
   ]
 
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Feedback Disputes')

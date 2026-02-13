@@ -2,6 +2,7 @@
 export * from './feedback'
 export * from './rts'
 export * from './evidence'
+export * from './dcm'
 
 // Dispute category type
 export type DisputeCategory = 'concessions' | 'feedback' | 'rts'

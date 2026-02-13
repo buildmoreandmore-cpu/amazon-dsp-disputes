@@ -1,16 +1,13 @@
+import type { DCMDeliveryData } from './dcm'
+
 export interface FeedbackRow {
-  deliveryGroupId: string
   deliveryAssociate: string
   deliveryAssociateName: string
-  mishandledPackage: boolean
-  unprofessional: boolean
-  didNotFollowInstructions: boolean
-  wrongAddress: boolean
-  neverReceived: boolean
-  wrongItem: boolean
   feedbackDetails: string
   trackingId: string
-  deliveryDate: string
+  address: string
+  customerNotes: string
+  reasonForDispute: string
 }
 
 export interface FeedbackDispute {
@@ -21,8 +18,11 @@ export interface FeedbackDispute {
   feedbackDetails: string
   reason: string
   priority: 1 | 2 | 3
-  deliveryDate: string
+  address: string
+  customerNotes: string
   requiresManualReview: boolean
+  additionalEvidence?: string
+  dcmData?: DCMDeliveryData
 }
 
 export interface FeedbackSummary {

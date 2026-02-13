@@ -21,9 +21,10 @@ const FEEDBACK_COLUMNS = {
   driver: 'Driver',
   feedbackType: 'Feedback Type',
   feedbackDetails: 'Feedback Details',
+  address: 'Address',
+  customerNotes: 'Customer Notes',
   disputeReason: 'Dispute Reason',
   priority: 'Priority',
-  deliveryDate: 'Delivery Date',
   additionalEvidence: 'Additional Evidence',
 }
 
