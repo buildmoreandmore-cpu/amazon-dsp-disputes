@@ -186,68 +186,88 @@ function FeedbackTable({
   disputes: FeedbackDispute[]
   getPriorityColor: (p: number) => string
 }) {
+  const [expandedRow, setExpandedRow] = useState<number | null>(null)
+
   return (
-    <table className="w-full">
-      <thead>
-        <tr className="border-b border-neutral-800">
-          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            Priority
-          </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            Tracking ID
-          </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            Driver
-          </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            Feedback Type
-          </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            Details
-          </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider max-w-md">
-            Dispute Reason
-          </th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-neutral-800">
-        {disputes.map((dispute, idx) => (
-          <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-neutral-800/50 transition-colors">
-            <td className="px-4 py-3 whitespace-nowrap">
-              <span
-                className={clsx(
-                  'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium',
-                  getPriorityColor(dispute.priority)
-                )}
-              >
-                Tier {dispute.priority}
-              </span>
-            </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-200 font-mono">
-              {dispute.trackingId}
-            </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
-              <div className="truncate max-w-[140px]" title={dispute.driver}>
-                {dispute.driver}
+    <div className="divide-y divide-neutral-800">
+      {disputes.map((dispute, idx) => (
+        <div
+          key={`${dispute.trackingId}-${idx}`}
+          className="hover:bg-neutral-800/30 transition-colors cursor-pointer"
+          onClick={() => setExpandedRow(expandedRow === idx ? null : idx)}
+        >
+          {/* Summary row — always visible */}
+          <div className="px-4 py-3 flex items-start gap-3">
+            <span
+              className={clsx(
+                'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium flex-shrink-0 mt-0.5',
+                getPriorityColor(dispute.priority)
+              )}
+            >
+              Tier {dispute.priority}
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                <span className="text-neutral-200 font-mono">{dispute.trackingId}</span>
+                <span className="text-neutral-400">{dispute.driver}</span>
+                <span className="px-2 py-0.5 bg-neutral-800 text-neutral-300 rounded text-xs">{dispute.feedbackType}</span>
               </div>
-            </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
-              {dispute.feedbackType}
-            </td>
-            <td className="px-4 py-3 text-sm text-neutral-400">
-              <div className="max-w-[180px] truncate" title={dispute.feedbackDetails}>
-                {dispute.feedbackDetails || '-'}
-              </div>
-            </td>
-            <td className="px-4 py-3 text-sm text-neutral-400">
-              <div className="max-w-md truncate" title={dispute.reason}>
+              <p className="text-sm text-neutral-400 mt-1">{dispute.feedbackDetails || '-'}</p>
+              <p className="text-sm text-neutral-500 mt-1">
                 {dispute.reason}
+              </p>
+              {dispute.additionalEvidence && (
+                <p className="text-xs text-emerald-500 mt-1">
+                  {dispute.additionalEvidence}
+                </p>
+              )}
+            </div>
+            <svg
+              className={clsx(
+                'w-4 h-4 text-neutral-600 flex-shrink-0 mt-1 transition-transform',
+                expandedRow === idx && 'rotate-180'
+              )}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+
+          {/* Expanded details */}
+          {expandedRow === idx && (
+            <div className="px-4 pb-4 pl-[4.5rem] space-y-2">
+              {dispute.address && (
+                <div className="text-sm">
+                  <span className="text-neutral-600 text-xs uppercase tracking-wider">Address</span>
+                  <p className="text-neutral-400">{dispute.address}</p>
+                </div>
+              )}
+              {dispute.customerNotes && (
+                <div className="text-sm">
+                  <span className="text-neutral-600 text-xs uppercase tracking-wider">Customer Notes</span>
+                  <p className="text-neutral-400">{dispute.customerNotes}</p>
+                </div>
+              )}
+              <div className="text-sm">
+                <span className="text-neutral-600 text-xs uppercase tracking-wider">Full Dispute Reason</span>
+                <p className="text-neutral-300">{dispute.reason}</p>
               </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+              {dispute.additionalEvidence && (
+                <div className="text-sm">
+                  <span className="text-emerald-600 text-xs uppercase tracking-wider">DCM Evidence</span>
+                  <p className="text-emerald-400">{dispute.additionalEvidence}</p>
+                </div>
+              )}
+              {dispute.requiresManualReview && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 rounded-md text-xs text-amber-400">
+                  Requires manual review
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   )
 }
 

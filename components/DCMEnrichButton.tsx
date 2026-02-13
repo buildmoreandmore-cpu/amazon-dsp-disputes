@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { DCMProgressPanel } from './DCMProgressPanel'
 import type { EnrichmentStatus, DCMDeliveryData } from '@/types/dcm'
 
@@ -17,14 +17,6 @@ export function DCMEnrichButton({ trackingIds, onEnrichComplete }: DCMEnrichButt
   const [uncachedIds, setUncachedIds] = useState<string[]>([])
   const [cachedCount, setCachedCount] = useState(0)
   const [isLocalhost, setIsLocalhost] = useState(false)
-
-  // Environment detection: only show on localhost
-  useEffect(() => {
-    setIsLocalhost(
-      typeof window !== 'undefined' &&
-      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    )
-  }, [])
 
   // Check scraper server availability
   const checkServer = useCallback(async () => {
@@ -74,6 +66,21 @@ export function DCMEnrichButton({ trackingIds, onEnrichComplete }: DCMEnrichButt
       setStatus('server_not_running')
     }
   }, [trackingIds, onEnrichComplete])
+
+  // Keep a ref to checkServer for the mount effect
+  const checkServerRef = useRef(checkServer)
+  checkServerRef.current = checkServer
+
+  // Environment detection + auto-check on mount
+  useEffect(() => {
+    const local =
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    setIsLocalhost(local)
+    if (local) {
+      checkServerRef.current()
+    }
+  }, [])
 
   const handleStartAuth = async () => {
     try {
@@ -191,7 +198,7 @@ export function DCMEnrichButton({ trackingIds, onEnrichComplete }: DCMEnrichButt
       )}
 
       {/* Idle — ready to check / start */}
-      {(status === 'idle' || status === 'checking_server') && (
+      {status === 'idle' && (
         <div className="bg-neutral-900 border border-emerald-500/20 rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -305,14 +312,17 @@ export function DCMEnrichButton({ trackingIds, onEnrichComplete }: DCMEnrichButt
         </div>
       )}
 
-      {/* Initial state — show check button */}
-      {status === 'idle' && uncachedIds.length === 0 && cachedCount === 0 && (
-        <button
-          onClick={checkServer}
-          className="w-full py-3 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-300 hover:border-emerald-500/30 hover:text-white transition-all text-sm font-medium"
-        >
-          Check for DCM Evidence Enrichment
-        </button>
+      {/* Checking server on mount */}
+      {status === 'checking_server' && (
+        <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-neutral-600 border-t-emerald-400 rounded-full animate-spin" />
+            <div>
+              <h3 className="text-sm font-semibold text-white">Checking for DCM Evidence Enrichment...</h3>
+              <p className="text-xs text-neutral-500">Looking for scraper server on localhost:3847</p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
