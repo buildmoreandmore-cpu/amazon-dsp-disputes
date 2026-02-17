@@ -1,4 +1,14 @@
-import type { ConcessionRow, DisputeResult, DisputeSummary, RepeatDriver } from '@/types'
+import type { ConcessionRow, ConcessionSubCategory, DisputeResult, DisputeSummary, RepeatDriver } from '@/types'
+
+export function assignSubCategory(row: ConcessionRow): ConcessionSubCategory | undefined {
+  if (row.scannedNotDelivered === 1) return 'Scanned - Not Delivered - Not Returned'
+  if (row.incorrectScanAttended === 1) return 'Incorrect Scan Usage - Attended Delivery'
+  if (row.incorrectScanUnattended === 1) return 'Incorrect Scan Usage - Unattended Delivery'
+  if (row.noPOD === 1) return 'No POD on Delivery'
+  if (row.deliveredOver50m === 1) return 'Delivered > 50m'
+  if (row.simultaneousDeliveries > 1) return 'Simultaneous Deliveries'
+  return undefined
+}
 
 export function generateDisputeReason(row: ConcessionRow): { reason: string; notes: string } {
   const withinGeo = row.deliveredOver50m === 0
@@ -86,10 +96,12 @@ export function processConcessionDisputes(rows: ConcessionRow[]): DisputeResult[
 
   return dsbRows.map(row => {
     const { reason, notes } = generateDisputeReason(row)
+    const subCategory = assignSubCategory(row)
 
     return {
       trackingId: row.trackingId,
       reason,
+      subCategory,
       impactsDSB: true,
       driver: row.deliveryAssociateName,
       driverId: row.deliveryAssociate,
@@ -142,6 +154,7 @@ export function buildConcessionSummary(
   week: string
 ): DisputeSummary {
   const reasonBreakdown: Record<string, number> = {}
+  const subCategoryCounts: Record<string, number> = {}
   let manualReviewCount = 0
 
   for (const dispute of disputes) {
@@ -150,6 +163,11 @@ export function buildConcessionSummary(
       ? 'Manual Review Required'
       : dispute.reason.substring(0, 50) + '...'
     reasonBreakdown[reasonKey] = (reasonBreakdown[reasonKey] || 0) + 1
+
+    // Count sub-categories
+    if (dispute.subCategory) {
+      subCategoryCounts[dispute.subCategory] = (subCategoryCounts[dispute.subCategory] || 0) + 1
+    }
 
     // Count manual reviews
     if (dispute.reason.includes('MANUAL REVIEW')) {
@@ -162,6 +180,7 @@ export function buildConcessionSummary(
     impactsDSBCount: disputes.length,
     autoDisputedCount: disputes.length - manualReviewCount,
     manualReviewCount,
+    subCategoryCounts,
     repeatDrivers: detectRepeatDrivers(rows.filter(r => r.impactsDSB === 1)),
     reasonBreakdown,
     station,

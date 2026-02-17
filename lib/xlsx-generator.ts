@@ -4,6 +4,7 @@ import type { DisputeResult, FeedbackDispute, RTSDispute, DisputeCategory } from
 // Concession XLSX row format
 interface ConcessionXLSXRow {
   'Tracking ID': string
+  'Sub-Category': string
   'Reason': string
   'Impacts DSB': string
   'Driver': string
@@ -42,6 +43,7 @@ interface RTSXLSXRow {
 export function generateConcessionXLSX(disputes: DisputeResult[]): string {
   const rows: ConcessionXLSXRow[] = disputes.map(d => ({
     'Tracking ID': d.trackingId,
+    'Sub-Category': d.subCategory || '',
     'Reason': d.reason,
     'Impacts DSB': d.impactsDSB ? 'Yes' : 'No',
     'Driver': d.driver,
@@ -58,6 +60,7 @@ export function generateConcessionXLSX(disputes: DisputeResult[]): string {
 
   worksheet['!cols'] = [
     { wch: 20 },  // Tracking ID
+    { wch: 40 },  // Sub-Category
     { wch: 80 },  // Reason
     { wch: 12 },  // Impacts DSB
     { wch: 25 },  // Driver

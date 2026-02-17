@@ -27,10 +27,19 @@ export interface ConcessionRow {
   dsp: string
 }
 
+export type ConcessionSubCategory =
+  | 'Simultaneous Deliveries'
+  | 'Delivered > 50m'
+  | 'Incorrect Scan Usage - Attended Delivery'
+  | 'Incorrect Scan Usage - Unattended Delivery'
+  | 'No POD on Delivery'
+  | 'Scanned - Not Delivered - Not Returned'
+
 export interface DisputeResult {
   trackingId: string
   reason: string
   priority?: number
+  subCategory?: ConcessionSubCategory
   impactsDSB: boolean
   driver: string
   driverId: string
@@ -57,6 +66,7 @@ export interface DisputeSummary {
     tier3: number
     tier4: number
   }
+  subCategoryCounts?: Record<string, number>
   repeatDrivers: RepeatDriver[]
   reasonBreakdown: Record<string, number>
   station: string

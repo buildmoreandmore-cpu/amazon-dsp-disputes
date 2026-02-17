@@ -119,13 +119,13 @@ function ConcessionTable({
             Tracking ID
           </th>
           <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+            Sub-Category
+          </th>
+          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Driver
           </th>
           <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Type
-          </th>
-          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            Impacts DSB
           </th>
           <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider max-w-md">
             Reason
@@ -138,6 +138,15 @@ function ConcessionTable({
             <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-200 font-mono">
               {dispute.trackingId}
             </td>
+            <td className="px-4 py-3 whitespace-nowrap text-sm">
+              {dispute.subCategory ? (
+                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30">
+                  {dispute.subCategory}
+                </span>
+              ) : (
+                <span className="text-neutral-500">—</span>
+              )}
+            </td>
             <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
               <div className="truncate max-w-[140px]" title={dispute.driver}>
                 {dispute.driver}
@@ -145,9 +154,6 @@ function ConcessionTable({
             </td>
             <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
               {dispute.deliveryType}
-            </td>
-            <td className="px-4 py-3 whitespace-nowrap text-sm">
-              <span className="text-red-400 font-medium">Yes</span>
             </td>
             <td className="px-4 py-3 text-sm text-neutral-400">
               <div className="max-w-md truncate" title={dispute.reason}>
