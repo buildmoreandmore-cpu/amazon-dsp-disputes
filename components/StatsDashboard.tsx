@@ -85,16 +85,6 @@ function ConcessionDashboard({ summary }: { summary: DisputeSummary }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">
-          <h3 className="text-sm font-medium text-neutral-300 mb-4">Priority Tiers</h3>
-          <div className="space-y-3">
-            <TierRow label="Tier 1 (Impacts DSB)" value={summary.tierCounts.tier1} color="text-red-400" />
-            <TierRow label="Tier 2 (Within Geo + POD)" value={summary.tierCounts.tier2} color="text-green-400" />
-            <TierRow label="Tier 3 (Attended)" value={summary.tierCounts.tier3} color="text-blue-400" />
-            <TierRow label="Tier 4 (Manual Review)" value={summary.tierCounts.tier4} color="text-amber-400" />
-          </div>
-        </div>
-
         {summary.repeatDrivers.length > 0 && (
           <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">
             <h3 className="text-sm font-medium text-neutral-300 mb-4">

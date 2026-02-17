@@ -1,25 +1,5 @@
 import type { ConcessionRow, DisputeResult, DisputeSummary, RepeatDriver } from '@/types'
 
-export function assignPriority(row: ConcessionRow): 1 | 2 | 3 | 4 {
-  // Tier 1: Impacts DSB (highest priority)
-  if (row.impactsDSB === 1) {
-    return 1
-  }
-
-  // Tier 2: Within geo fence and has POD
-  if (row.deliveredOver50m === 0 && row.noPOD === 0) {
-    return 2
-  }
-
-  // Tier 3: Attended delivery
-  if (row.deliveryType === 'Attended') {
-    return 3
-  }
-
-  // Tier 4: Manual review required (outside geo fence)
-  return 4
-}
-
 export function generateDisputeReason(row: ConcessionRow): { reason: string; notes: string } {
   const withinGeo = row.deliveredOver50m === 0
   const hasPOD = row.noPOD === 0
@@ -101,15 +81,16 @@ export function generateDisputeReason(row: ConcessionRow): { reason: string; not
 }
 
 export function processConcessionDisputes(rows: ConcessionRow[]): DisputeResult[] {
-  return rows.map(row => {
-    const priority = assignPriority(row)
+  // Only process rows that impact DSB
+  const dsbRows = rows.filter(row => row.impactsDSB === 1)
+
+  return dsbRows.map(row => {
     const { reason, notes } = generateDisputeReason(row)
 
     return {
       trackingId: row.trackingId,
       reason,
-      priority,
-      impactsDSB: row.impactsDSB === 1,
+      impactsDSB: true,
       driver: row.deliveryAssociateName,
       driverId: row.deliveryAssociate,
       deliveryType: row.deliveryType,
@@ -121,17 +102,8 @@ export function processConcessionDisputes(rows: ConcessionRow[]): DisputeResult[
 }
 
 export function sortConcessionDisputes(disputes: DisputeResult[]): DisputeResult[] {
-  return [...disputes].sort((a, b) => {
-    // Sort by priority ascending (1 is highest priority)
-    if (a.priority !== b.priority) {
-      return a.priority - b.priority
-    }
-    // Then by impacts DSB descending
-    if (a.impactsDSB !== b.impactsDSB) {
-      return a.impactsDSB ? -1 : 1
-    }
-    return 0
-  })
+  // All disputes impact DSB — sort by driver name for grouping
+  return [...disputes].sort((a, b) => a.driver.localeCompare(b.driver))
 }
 
 export function detectRepeatDrivers(rows: ConcessionRow[]): RepeatDriver[] {
@@ -169,20 +141,10 @@ export function buildConcessionSummary(
   station: string,
   week: string
 ): DisputeSummary {
-  const tierCounts = {
-    tier1: 0,
-    tier2: 0,
-    tier3: 0,
-    tier4: 0
-  }
-
   const reasonBreakdown: Record<string, number> = {}
   let manualReviewCount = 0
 
   for (const dispute of disputes) {
-    // Count tiers
-    tierCounts[`tier${dispute.priority}` as keyof typeof tierCounts]++
-
     // Count reasons
     const reasonKey = dispute.reason.includes('MANUAL REVIEW')
       ? 'Manual Review Required'
@@ -197,11 +159,10 @@ export function buildConcessionSummary(
 
   return {
     totalConcessions: rows.length,
-    impactsDSBCount: rows.filter(r => r.impactsDSB === 1).length,
+    impactsDSBCount: disputes.length,
     autoDisputedCount: disputes.length - manualReviewCount,
     manualReviewCount,
-    tierCounts,
-    repeatDrivers: detectRepeatDrivers(rows),
+    repeatDrivers: detectRepeatDrivers(rows.filter(r => r.impactsDSB === 1)),
     reasonBreakdown,
     station,
     week

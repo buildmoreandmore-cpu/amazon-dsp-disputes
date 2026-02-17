@@ -23,16 +23,6 @@ export function generateMarkdownSummary(summary: DisputeSummary): string {
   lines.push(`**Auto-Dispute Rate:** ${autoRate}%`)
   lines.push('')
 
-  lines.push(`## Priority Tier Breakdown`)
-  lines.push('')
-  lines.push(`| Tier | Description | Count |`)
-  lines.push(`|------|-------------|-------|`)
-  lines.push(`| Tier 1 | Impacts DSB (Highest Priority) | ${summary.tierCounts.tier1} |`)
-  lines.push(`| Tier 2 | Within Geo + Has POD | ${summary.tierCounts.tier2} |`)
-  lines.push(`| Tier 3 | Attended Delivery | ${summary.tierCounts.tier3} |`)
-  lines.push(`| Tier 4 | Manual Review Required | ${summary.tierCounts.tier4} |`)
-  lines.push('')
-
   if (summary.repeatDrivers.length > 0) {
     lines.push(`## Repeat Drivers (3+ Concessions)`)
     lines.push('')

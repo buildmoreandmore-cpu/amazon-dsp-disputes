@@ -107,7 +107,6 @@ export function DisputePreview({ disputes, category }: DisputePreviewProps) {
 
 function ConcessionTable({
   disputes,
-  getPriorityColor
 }: {
   disputes: DisputeResult[]
   getPriorityColor: (p: number) => string
@@ -116,9 +115,6 @@ function ConcessionTable({
     <table className="w-full">
       <thead>
         <tr className="border-b border-neutral-800">
-          <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            Priority
-          </th>
           <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
             Tracking ID
           </th>
@@ -129,7 +125,7 @@ function ConcessionTable({
             Type
           </th>
           <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
-            DSB
+            Impacts DSB
           </th>
           <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider max-w-md">
             Reason
@@ -139,16 +135,6 @@ function ConcessionTable({
       <tbody className="divide-y divide-neutral-800">
         {disputes.map((dispute, idx) => (
           <tr key={`${dispute.trackingId}-${idx}`} className="hover:bg-neutral-800/50 transition-colors">
-            <td className="px-4 py-3 whitespace-nowrap">
-              <span
-                className={clsx(
-                  'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium',
-                  getPriorityColor(dispute.priority)
-                )}
-              >
-                Tier {dispute.priority}
-              </span>
-            </td>
             <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-200 font-mono">
               {dispute.trackingId}
             </td>
@@ -161,11 +147,7 @@ function ConcessionTable({
               {dispute.deliveryType}
             </td>
             <td className="px-4 py-3 whitespace-nowrap text-sm">
-              {dispute.impactsDSB ? (
-                <span className="text-red-400 font-medium">Yes</span>
-              ) : (
-                <span className="text-neutral-500">No</span>
-              )}
+              <span className="text-red-400 font-medium">Yes</span>
             </td>
             <td className="px-4 py-3 text-sm text-neutral-400">
               <div className="max-w-md truncate" title={dispute.reason}>

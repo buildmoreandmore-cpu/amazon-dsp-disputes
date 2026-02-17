@@ -30,7 +30,7 @@ export interface ConcessionRow {
 export interface DisputeResult {
   trackingId: string
   reason: string
-  priority: 1 | 2 | 3 | 4
+  priority?: number
   impactsDSB: boolean
   driver: string
   driverId: string
@@ -51,7 +51,7 @@ export interface DisputeSummary {
   impactsDSBCount: number
   autoDisputedCount: number
   manualReviewCount: number
-  tierCounts: {
+  tierCounts?: {
     tier1: number
     tier2: number
     tier3: number
