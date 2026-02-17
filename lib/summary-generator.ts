@@ -24,7 +24,7 @@ export function generateMarkdownSummary(summary: DisputeSummary): string {
   lines.push('')
 
   if (summary.repeatDrivers.length > 0) {
-    lines.push(`## Repeat Drivers (3+ Concessions)`)
+    lines.push(`## Repeat Drivers (2+ Concessions)`)
     lines.push('')
     lines.push(`| Driver Name | Driver ID | Concession Count |`)
     lines.push(`|-------------|-----------|------------------|`)
@@ -32,12 +32,12 @@ export function generateMarkdownSummary(summary: DisputeSummary): string {
       lines.push(`| ${driver.name} | ${driver.driverId} | ${driver.concessionCount} |`)
     }
     lines.push('')
-    lines.push(`> **Note:** Drivers with 3+ concessions may require coaching or additional oversight.`)
+    lines.push(`> **Note:** Drivers with 2+ concessions may require coaching or additional oversight.`)
     lines.push('')
   } else {
     lines.push(`## Repeat Drivers`)
     lines.push('')
-    lines.push(`No drivers with 3+ concessions this period.`)
+    lines.push(`No drivers with 2+ concessions this period.`)
     lines.push('')
   }
 

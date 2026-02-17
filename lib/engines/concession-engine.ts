@@ -135,7 +135,7 @@ export function detectRepeatDrivers(rows: ConcessionRow[]): RepeatDriver[] {
 
   const repeatDrivers: RepeatDriver[] = []
   for (const [driverId, data] of driverCounts) {
-    if (data.count >= 3) {
+    if (data.count >= 2) {
       repeatDrivers.push({
         name: data.name,
         driverId,

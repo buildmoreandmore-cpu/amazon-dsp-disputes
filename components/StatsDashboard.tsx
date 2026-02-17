@@ -104,7 +104,7 @@ function ConcessionDashboard({ summary }: { summary: DisputeSummary }) {
         {summary.repeatDrivers.length > 0 && (
           <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">
             <h3 className="text-sm font-medium text-neutral-300 mb-4">
-              Repeat Drivers (3+ Concessions)
+              Repeat Drivers (2+ Concessions)
             </h3>
             <div className="space-y-3">
               {summary.repeatDrivers.slice(0, 5).map((driver) => (
