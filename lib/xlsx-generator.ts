@@ -5,13 +5,13 @@ import type { DisputeResult, FeedbackDispute, RTSDispute, DisputeCategory } from
 interface ConcessionXLSXRow {
   'Tracking ID': string
   'Sub-Category': string
-  'Reason': string
   'Impacts DSB': string
   'Driver': string
   'Driver ID': string
   'Delivery Type': string
   'Within Geo Fence': string
   'Has POD': string
+  'Reason': string
   'Notes': string
   'Additional Evidence': string
 }
@@ -43,14 +43,14 @@ interface RTSXLSXRow {
 export function generateConcessionXLSX(disputes: DisputeResult[]): string {
   const rows: ConcessionXLSXRow[] = disputes.map(d => ({
     'Tracking ID': d.trackingId,
-    'Sub-Category': d.subCategory || '',
-    'Reason': d.reason,
+    'Sub-Category': d.subCategory,
     'Impacts DSB': d.impactsDSB ? 'Yes' : 'No',
     'Driver': d.driver,
     'Driver ID': d.driverId,
     'Delivery Type': d.deliveryType,
     'Within Geo Fence': d.withinGeoFence ? 'Yes' : 'No',
     'Has POD': d.hasPOD ? 'Yes' : 'No',
+    'Reason': d.reason,
     'Notes': d.notes,
     'Additional Evidence': ''
   }))
@@ -60,14 +60,14 @@ export function generateConcessionXLSX(disputes: DisputeResult[]): string {
 
   worksheet['!cols'] = [
     { wch: 20 },  // Tracking ID
-    { wch: 40 },  // Sub-Category
-    { wch: 80 },  // Reason
+    { wch: 42 },  // Sub-Category
     { wch: 12 },  // Impacts DSB
     { wch: 25 },  // Driver
     { wch: 15 },  // Driver ID
     { wch: 14 },  // Delivery Type
     { wch: 16 },  // Within Geo Fence
     { wch: 10 },  // Has POD
+    { wch: 80 },  // Reason
     { wch: 40 },  // Notes
     { wch: 50 }   // Additional Evidence
   ]

@@ -139,13 +139,9 @@ function ConcessionTable({
               {dispute.trackingId}
             </td>
             <td className="px-4 py-3 whitespace-nowrap text-sm">
-              {dispute.subCategory ? (
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30">
-                  {dispute.subCategory}
-                </span>
-              ) : (
-                <span className="text-neutral-500">—</span>
-              )}
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-500/20 text-red-400 border border-red-500/30">
+                {dispute.subCategory}
+              </span>
             </td>
             <td className="px-4 py-3 whitespace-nowrap text-sm text-neutral-400">
               <div className="truncate max-w-[140px]" title={dispute.driver}>

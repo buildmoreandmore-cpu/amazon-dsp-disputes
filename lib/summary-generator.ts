@@ -23,6 +23,18 @@ export function generateMarkdownSummary(summary: DisputeSummary): string {
   lines.push(`**Auto-Dispute Rate:** ${autoRate}%`)
   lines.push('')
 
+  lines.push(`## Sub-Category Breakdown`)
+  lines.push('')
+  lines.push(`| Sub-Category | Count |`)
+  lines.push(`|-------------|-------|`)
+  const sortedSubCats = Object.entries(summary.subCategoryCounts)
+    .filter(([, count]) => count > 0)
+    .sort(([, a], [, b]) => b - a)
+  for (const [cat, count] of sortedSubCats) {
+    lines.push(`| ${cat} | ${count} |`)
+  }
+  lines.push('')
+
   if (summary.repeatDrivers.length > 0) {
     lines.push(`## Repeat Drivers (2+ Concessions)`)
     lines.push('')

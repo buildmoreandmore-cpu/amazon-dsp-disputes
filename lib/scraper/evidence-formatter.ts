@@ -5,7 +5,7 @@ import type { DCMDeliveryData } from '../../types/dcm'
  * for the "Additional Evidence" column in the XLSX export.
  *
  * Example output:
- * "Geo-fence: WITHIN | Distance: 21.38m | GPS: 33.749, -84.388 | Delivered: 2026-02-10 14:32 | POD: Photo on delivery"
+ * "Geo-fence: WITHIN | Distance: 21.38m | GPS: 33.8111345, -84.5654161 | Planned: 33.8110359, -84.5652175 | Delivered: 2026-01-22 22:44:12 | POD: POD not required for this delivery"
  */
 export function formatDCMEvidence(data: DCMDeliveryData): string {
   const parts: string[] = []
@@ -22,12 +22,20 @@ export function formatDCMEvidence(data: DCMDeliveryData): string {
     parts.push(`GPS: ${data.gpsLatitude}, ${data.gpsLongitude}`)
   }
 
+  if (data.plannedLatitude != null && data.plannedLongitude != null) {
+    parts.push(`Planned: ${data.plannedLatitude}, ${data.plannedLongitude}`)
+  }
+
   if (data.deliveryTimestamp) {
     parts.push(`Delivered: ${data.deliveryTimestamp}`)
   }
 
-  if (data.deliveryLocation) {
-    parts.push(`Location: ${data.deliveryLocation}`)
+  if (data.deliveryType) {
+    parts.push(`Type: ${data.deliveryType}`)
+  }
+
+  if (data.dropoffLocation) {
+    parts.push(`Dropoff: ${data.dropoffLocation}`)
   }
 
   if (data.podStatus) {
@@ -51,8 +59,8 @@ export function enhanceReasonWithDCM(originalReason: string, data: DCMDeliveryDa
 
   const enhancements: string[] = []
 
-  if (data.geoFenceStatus === 'WITHIN') {
-    enhancements.push('DCM confirms delivery within geo-fence')
+  if (data.geoFenceStatus === 'WITHIN' && data.distanceFromPin != null) {
+    enhancements.push(`DCM confirms delivery within geo-fence (${data.distanceFromPin}m from pin)`)
   } else if (data.geoFenceStatus === 'OUTSIDE' && data.distanceFromPin != null) {
     enhancements.push(`DCM shows delivery ${data.distanceFromPin}m from pin`)
   }
@@ -67,6 +75,10 @@ export function enhanceReasonWithDCM(originalReason: string, data: DCMDeliveryDa
 
   if (data.deliveryTimestamp) {
     enhancements.push(`Delivery time: ${data.deliveryTimestamp}`)
+  }
+
+  if (data.deliveryType) {
+    enhancements.push(`Delivery type: ${data.deliveryType}`)
   }
 
   if (enhancements.length === 0) {

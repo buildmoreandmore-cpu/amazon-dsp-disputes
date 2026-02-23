@@ -85,21 +85,17 @@ function ConcessionDashboard({ summary }: { summary: DisputeSummary }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {summary.subCategoryCounts && Object.keys(summary.subCategoryCounts).length > 0 && (
-          <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">
-            <h3 className="text-sm font-medium text-neutral-300 mb-4">DSB Sub-Categories</h3>
-            <div className="space-y-3">
-              {Object.entries(summary.subCategoryCounts)
-                .sort(([, a], [, b]) => b - a)
-                .map(([category, count]) => (
-                  <div key={category} className="flex items-center justify-between">
-                    <span className="text-sm text-neutral-400">{category}</span>
-                    <span className="text-sm font-semibold text-red-400">{count}</span>
-                  </div>
-                ))}
-            </div>
+        <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">
+          <h3 className="text-sm font-medium text-neutral-300 mb-4">DSB Sub-Categories</h3>
+          <div className="space-y-3">
+            {Object.entries(summary.subCategoryCounts)
+              .filter(([, count]) => count > 0)
+              .sort(([, a], [, b]) => b - a)
+              .map(([category, count]) => (
+                <TierRow key={category} label={category} value={count} color="text-red-400" />
+              ))}
           </div>
-        )}
+        </div>
 
         {summary.repeatDrivers.length > 0 && (
           <div className="bg-neutral-900 rounded-xl border border-neutral-800 p-5">

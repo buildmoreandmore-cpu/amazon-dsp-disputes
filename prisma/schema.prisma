@@ -54,12 +54,18 @@ model DCMCache {
   trackingId        String   @unique
   gpsLatitude       Float?
   gpsLongitude      Float?
+  plannedLatitude   Float?
+  plannedLongitude  Float?
   geoFenceStatus    String?
   distanceFromPin   Float?
   photoUrl          String?
   deliveryTimestamp String?
   deliveryLocation  String?
   podStatus         String?
+  deliveryType      String?
+  dropoffLocation   String?
+  concessionReason  String?
+  address           String?
   scrapedAt         DateTime @default(now())
 
   @@index([trackingId])

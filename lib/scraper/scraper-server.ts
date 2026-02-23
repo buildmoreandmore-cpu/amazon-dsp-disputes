@@ -4,11 +4,10 @@ import { chromium, type Browser, type BrowserContext, type Page } from 'playwrig
 import type { DCMDeliveryData, ScraperEvent, ScraperStatus } from '../../types/dcm'
 import {
   AMAZON_LOGISTICS_URL,
-  DCM_SELECTORS,
   MAX_CONSECUTIVE_FAILURES,
   getDelayWithJitter,
 } from './dcm-selectors'
-import { extractDCMData, navigateToTBA, isLoginPage } from './dcm-extractor'
+import { extractDCMData, navigateToTBA, closePopup, isLoginPage } from './dcm-extractor'
 
 const PORT = 3847
 
@@ -96,7 +95,7 @@ async function handleCheckAuth(_req: IncomingMessage, res: ServerResponse) {
 
   try {
     const url = page.url()
-    const onLogin = await isLoginPage(page, DCM_SELECTORS)
+    const onLogin = await isLoginPage(page)
 
     // If we're past the login page and on the logistics domain, we're authenticated
     if (!onLogin && url.includes('logistics.amazon')) {
@@ -176,7 +175,7 @@ async function handleScrape(req: IncomingMessage, res: ServerResponse) {
 
     try {
       // Check for session expiry
-      if (await isLoginPage(page!, DCM_SELECTORS)) {
+      if (await isLoginPage(page!)) {
         authenticated = false
         sendSSE(res, { type: 'auth_required', message: 'Session expired. Please re-authenticate.' })
 
@@ -185,7 +184,7 @@ async function handleScrape(req: IncomingMessage, res: ServerResponse) {
         for (let i = 0; i < 100; i++) {
           await new Promise(r => setTimeout(r, 3000))
           if (stopRequested) break
-          if (!(await isLoginPage(page!, DCM_SELECTORS))) {
+          if (!(await isLoginPage(page!))) {
             authenticated = true
             reauthed = true
             break
@@ -198,26 +197,17 @@ async function handleScrape(req: IncomingMessage, res: ServerResponse) {
         }
       }
 
-      // Navigate to TBA
-      const found = await navigateToTBA(page!, tba, DCM_SELECTORS)
+      // Navigate to TBA and open DCM popup
+      const found = await navigateToTBA(page!, tba)
 
       if (found) {
-        const data = await extractDCMData(page!, tba, DCM_SELECTORS)
+        const data = await extractDCMData(page!, tba)
         succeeded++
         consecutiveFailures = 0
         sendSSE(res, { type: 'tba_success', trackingId: tba, data })
 
-        // Try to close any popup before next search
-        for (const closeSelector of DCM_SELECTORS.closePopup) {
-          try {
-            const closeBtn = page!.locator(closeSelector).first()
-            const visible = await closeBtn.isVisible({ timeout: 500 }).catch(() => false)
-            if (visible) {
-              await closeBtn.click()
-              break
-            }
-          } catch { /* no popup to close */ }
-        }
+        // Close the popup before next search
+        await closePopup(page!)
       } else {
         failed++
         consecutiveFailures++

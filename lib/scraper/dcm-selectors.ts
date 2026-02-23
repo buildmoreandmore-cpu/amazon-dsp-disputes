@@ -1,8 +1,7 @@
-import type { DCMSelectors } from '../../types/dcm'
+import type { DCMRowLabels } from '../../types/dcm'
 
 // Amazon Logistics URLs
 export const AMAZON_LOGISTICS_URL = 'https://logistics.amazon.com'
-export const AMAZON_LOGIN_URL = 'https://logistics.amazon.com/login'
 
 // Timing constants
 export const SCRAPE_DELAY_MS = 2000
@@ -13,150 +12,96 @@ export const AUTH_CHECK_TIMEOUT_MS = 5000
 export const MAX_CONSECUTIVE_FAILURES = 5
 export const CACHE_TTL_DAYS = 7
 
+// Amazon's standard delivery geo-fence radius in meters
+export const AMAZON_GEOFENCE_RADIUS_METERS = 150
+
 /**
- * DOM selectors for the Delivery Contrast Map page.
- * Each field is an array of selectors tried in order (fallback chain):
- *   data-testid → aria-label → text content → CSS class
+ * Row labels in the DCM popup table.
+ * The popup is a two-column table: label cell | value cell.
+ * We find rows by matching the label text, then read the adjacent value cell.
  *
- * These are best-guess patterns. Refine after first live inspection.
+ * These match exactly what appears in the Amazon Logistics DCM popup.
  */
-export const DCM_SELECTORS: DCMSelectors = {
-  // Search input for TBA tracking ID
+export const DCM_ROW_LABELS: DCMRowLabels = {
+  deliveryAttemptDate: 'Delivery Attempt Date',
+  deliveryDate: 'Delivery Date',
+  concessionReason: 'Concession Reason',
+  dropoffLocation: 'Dropoff Location',
+  deliveryType: 'Delivery Type',
+  address: 'Address',
+  distanceBetween: 'Distance Between Actual and Planned',
+  plannedLocation: 'Planned Location',
+  actualLocation: 'Actual Location',
+}
+
+/**
+ * Selectors for page-level elements (not inside the popup table).
+ * Each is a fallback chain tried in order.
+ */
+export const PAGE_SELECTORS = {
+  // Search input at top of the associate/TBA list
   searchInput: [
-    '[data-testid="tracking-id-search"]',
-    'input[aria-label="Search tracking ID"]',
-    'input[placeholder*="tracking"]',
     'input[placeholder*="TBA"]',
-    '.search-input input',
+    'input[placeholder*="order or TBA"]',
+    'input[placeholder*="tracking"]',
+    'input[placeholder*="Search"]',
+    'input[type="search"]',
     'input[type="text"]',
   ],
 
-  // Search/submit button
-  searchButton: [
-    '[data-testid="search-button"]',
-    'button[aria-label="Search"]',
-    'button:has-text("Search")',
-    '.search-button',
-    'button[type="submit"]',
+  // DCM popup detection — title text at top of modal
+  popupTitle: [
+    'text=Delivery contrast map for Tracking ID',
+    ':has-text("Delivery contrast map for Tracking ID")',
   ],
 
-  // Delivery result row in search results
-  deliveryRow: [
-    '[data-testid="delivery-row"]',
-    '[data-testid="delivery-detail"]',
-    'tr[data-tracking-id]',
-    '.delivery-row',
-    '.delivery-detail',
-  ],
-
-  // GPS coordinates display
-  gpsCoords: [
-    '[data-testid="gps-coordinates"]',
-    '[data-testid="delivery-coordinates"]',
-    '[aria-label="GPS coordinates"]',
-    '.gps-coords',
-    '.coordinates',
-  ],
-
-  // Geo-fence status (WITHIN / OUTSIDE)
-  geoFenceStatus: [
-    '[data-testid="geo-fence-status"]',
-    '[data-testid="geofence-status"]',
-    '[aria-label="Geo fence status"]',
-    '.geo-fence-status',
-    '.geofence-badge',
-  ],
-
-  // Distance from delivery pin
-  distanceFromPin: [
-    '[data-testid="distance-from-pin"]',
-    '[data-testid="delivery-distance"]',
-    '[aria-label="Distance"]',
-    '.distance-value',
-    '.delivery-distance',
-  ],
-
-  // Delivery photo element
-  photoElement: [
-    '[data-testid="delivery-photo"]',
-    '[data-testid="pod-photo"]',
-    'img[alt*="delivery"]',
-    'img[alt*="photo"]',
-    '.delivery-photo img',
-    '.pod-image img',
-  ],
-
-  // Delivery timestamp
-  deliveryTimestamp: [
-    '[data-testid="delivery-timestamp"]',
-    '[data-testid="delivery-time"]',
-    '[aria-label="Delivery time"]',
-    '.delivery-timestamp',
-    '.delivery-time',
-  ],
-
-  // Delivery location description
-  deliveryLocation: [
-    '[data-testid="delivery-location"]',
-    '[aria-label="Delivery location"]',
-    '.delivery-location',
-    '.location-description',
-  ],
-
-  // Proof of delivery status
-  podStatus: [
-    '[data-testid="pod-status"]',
-    '[data-testid="proof-of-delivery"]',
-    '[aria-label="Proof of delivery"]',
-    '.pod-status',
-    '.proof-of-delivery',
-  ],
-
-  // DCM popup/modal container
-  dcmPopup: [
-    '[data-testid="dcm-popup"]',
-    '[data-testid="delivery-detail-modal"]',
-    '[role="dialog"]',
-    '.modal-content',
-    '.dcm-popup',
-  ],
-
-  // Close popup button
+  // Close popup button (X in top-right corner)
   closePopup: [
-    '[data-testid="close-popup"]',
     'button[aria-label="Close"]',
-    'button:has-text("Close")',
-    '.close-button',
+    'button:has-text("×")',
+    'button:has-text("✕")',
+    'button:has-text("X")',
+    '.modal-close',
+    'button.close',
     '[data-dismiss="modal"]',
   ],
 
-  // Login form detection (for auth checks)
+  // Login form detection (session expired)
   loginForm: [
     '#ap_email',
     'input[name="email"]',
     '#signInSubmit',
     'form[name="signIn"]',
-    '.auth-form',
   ],
 
-  // No results indicator
-  noResults: [
-    '[data-testid="no-results"]',
-    ':has-text("No results found")',
-    ':has-text("not found")',
-    '.no-results',
-    '.empty-state',
+  // POD text at bottom of popup (outside the main table)
+  podText: [
+    'text=POD not required',
+    'text=POD required',
+    'text=Photo on delivery',
+    ':has-text("POD")',
   ],
-}
 
-/**
- * Try each selector in the fallback chain until one matches.
- * Returns the first matching selector string, or null if none match.
- */
-export function getFirstMatchingSelector(selectors: string[]): string | null {
-  // This is used by the extractor with page.locator()
-  // We return the full array for the extractor to iterate
-  return selectors[0] ?? null
+  // Delivery photo in popup
+  photoElement: [
+    'img[alt*="delivery"]',
+    'img[alt*="photo"]',
+    'img[alt*="POD"]',
+    '.delivery-photo img',
+  ],
+
+  // "View more details on Cortex" link — indicates data loaded
+  cortexLink: [
+    'text=View more details on Cortex',
+    'a:has-text("Cortex")',
+  ],
+
+  // Clickable TBA row in the concessions/feedback list
+  tbaRow: [
+    'tr:has-text("TBA")',
+    'td:has-text("TBA")',
+    '[data-tracking-id]',
+  ],
 }
 
 /** Calculate delay with jitter */

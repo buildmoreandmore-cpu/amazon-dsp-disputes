@@ -34,12 +34,12 @@ export type ConcessionSubCategory =
   | 'Incorrect Scan Usage - Unattended Delivery'
   | 'No POD on Delivery'
   | 'Scanned - Not Delivered - Not Returned'
+  | 'Other'
 
 export interface DisputeResult {
   trackingId: string
   reason: string
-  priority?: number
-  subCategory?: ConcessionSubCategory
+  subCategory: ConcessionSubCategory
   impactsDSB: boolean
   driver: string
   driverId: string
@@ -60,13 +60,7 @@ export interface DisputeSummary {
   impactsDSBCount: number
   autoDisputedCount: number
   manualReviewCount: number
-  tierCounts?: {
-    tier1: number
-    tier2: number
-    tier3: number
-    tier4: number
-  }
-  subCategoryCounts?: Record<string, number>
+  subCategoryCounts: Record<ConcessionSubCategory, number>
   repeatDrivers: RepeatDriver[]
   reasonBreakdown: Record<string, number>
   station: string

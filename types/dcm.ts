@@ -3,33 +3,44 @@
 /** Per-TBA scraped data from the DCM popup */
 export interface DCMDeliveryData {
   trackingId: string
+  // Actual delivery GPS (from "Actual Location" row)
   gpsLatitude: number | null
   gpsLongitude: number | null
-  geoFenceStatus: string | null // e.g., "WITHIN", "OUTSIDE"
+  // Planned delivery GPS (from "Planned Location" row)
+  plannedLatitude: number | null
+  plannedLongitude: number | null
+  // Inferred from distance vs Amazon's 150m geo-fence radius
+  geoFenceStatus: string | null // "WITHIN" | "OUTSIDE"
+  // From "Distance Between Actual and Planned" row
   distanceFromPin: number | null // meters
   photoUrl: string | null
+  // From "Delivery Date" row
   deliveryTimestamp: string | null
   deliveryLocation: string | null
-  podStatus: string | null // e.g., "Photo on delivery", "No photo"
+  // From POD text at bottom of popup
+  podStatus: string | null
+  // From "Delivery Type" row (Attended / Unattended)
+  deliveryType: string | null
+  // From "Dropoff Location" row (DELIVERED_TO_RECEPTIONIST, etc.)
+  dropoffLocation: string | null
+  // From "Concession Reason" row
+  concessionReason: string | null
+  // From "Address" row
+  address: string | null
   scrapedAt: string
 }
 
-/** Typed selector config for DCM page DOM elements */
-export interface DCMSelectors {
-  searchInput: string[]
-  searchButton: string[]
-  deliveryRow: string[]
-  gpsCoords: string[]
-  geoFenceStatus: string[]
-  distanceFromPin: string[]
-  photoElement: string[]
-  deliveryTimestamp: string[]
-  deliveryLocation: string[]
-  podStatus: string[]
-  dcmPopup: string[]
-  closePopup: string[]
-  loginForm: string[]
-  noResults: string[]
+/** Row labels in the DCM popup table for text-based extraction */
+export interface DCMRowLabels {
+  deliveryAttemptDate: string
+  deliveryDate: string
+  concessionReason: string
+  dropoffLocation: string
+  deliveryType: string
+  address: string
+  distanceBetween: string
+  plannedLocation: string
+  actualLocation: string
 }
 
 /** Server status for the scraper */
