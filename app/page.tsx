@@ -73,14 +73,14 @@ export default function LandingPage() {
               Stop losing money on unfair disputes.
             </h1>
             <p className="text-neutral-400 text-lg sm:text-xl mt-8 max-w-lg leading-relaxed animate-fade-in-up animation-delay-200">
-              Automate your DSP dispute process for Concessions, Customer Feedback, and DCR/RTS. Generate professional dispute files in seconds.
+              Log in once. The agent navigates your Quality Dashboard, inspects every tracking ID, and submits disputes automatically.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-10 animate-fade-in-up animation-delay-400">
               <Link
                 href="/tool"
                 className="inline-flex justify-center px-8 py-4 bg-white text-black rounded-full font-semibold text-base hover:bg-neutral-200 transition-all hover:scale-105 hover:shadow-lg hover:shadow-white/10 active:scale-95"
               >
-                Start Processing Disputes
+                Launch Auto Dispute
               </Link>
               <a
                 href="#features"
@@ -188,7 +188,7 @@ export default function LandingPage() {
               <div className="text-neutral-400 text-sm mt-1">Free to Use</div>
             </div>
             <div className="scroll-animate opacity-0 translate-y-4 transition-all duration-700 delay-300">
-              <div className="text-4xl lg:text-5xl font-bold">5</div>
+              <div className="text-4xl lg:text-5xl font-bold">3</div>
               <div className="text-neutral-400 text-sm mt-1">Simple Steps</div>
             </div>
           </div>
@@ -329,47 +329,31 @@ export default function LandingPage() {
           <div className="text-center mb-16 scroll-animate">
             <h2 className="text-4xl sm:text-5xl font-bold">How it works.</h2>
             <p className="text-neutral-400 text-lg mt-4">
-              From raw CSV to evidence-backed dispute files in 5 steps.
+              From login to submitted disputes in 3 steps.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8">
+          <div className="grid sm:grid-cols-3 gap-8">
             {[
               {
                 step: '01',
-                title: 'Select Category',
-                description: 'Choose between Concessions, Customer Feedback, or DCR/RTS disputes.'
+                title: 'Log In',
+                description: 'Click launch, sign into Amazon Logistics with your credentials and MFA as usual.'
               },
               {
                 step: '02',
-                title: 'Upload CSV',
-                description: 'Drop your Amazon report file - we handle the parsing automatically.'
+                title: 'Agent Takes Over',
+                description: 'The agent navigates to Quality, opens every tracking ID popup, and pulls the evidence needed for accurate disputes.'
               },
               {
                 step: '03',
-                title: 'Review Results',
-                description: 'See priority tiers, repeat drivers, and dispute recommendations.'
-              },
-              {
-                step: '04',
-                title: 'Enrich Evidence',
-                description: 'Auto-pull GPS, geo-fence, and photo data from Amazon\'s Delivery Contrast Map.',
-                highlight: true
-              },
-              {
-                step: '05',
-                title: 'Download Files',
-                description: 'Get your evidence-enriched XLSX file and Markdown summary.'
+                title: 'Disputes Submitted',
+                description: 'All valid disputes are filed with real evidence. You get a full report of what was submitted.'
               }
             ].map((item, index) => (
-              <div key={item.step} className={`scroll-animate text-center hover:scale-105 transition-transform duration-300 ${index === 1 ? 'delay-100' : index === 2 ? 'delay-200' : index === 3 ? 'delay-300' : index === 4 ? 'delay-[400ms]' : ''}`}>
-                <div className={`text-6xl font-bold mb-4 transition-colors ${(item as { highlight?: boolean }).highlight ? 'text-emerald-800' : 'text-neutral-800'}`}>{item.step}</div>
-                <h3 className="text-xl font-semibold mb-2">
-                  {item.title}
-                  {(item as { highlight?: boolean }).highlight && (
-                    <span className="ml-2 inline-block px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs font-medium rounded-full align-middle">New</span>
-                  )}
-                </h3>
+              <div key={item.step} className={`scroll-animate text-center hover:scale-105 transition-transform duration-300 ${index === 1 ? 'delay-100' : index === 2 ? 'delay-200' : ''}`}>
+                <div className="text-6xl font-bold mb-4 text-neutral-800">{item.step}</div>
+                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                 <p className="text-neutral-400">{item.description}</p>
               </div>
             ))}
