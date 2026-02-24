@@ -10,15 +10,15 @@
 
 ### Step 2: Quality Dashboard
 - Click "Quality" section (or go via Performance → Quality Dashboard)
-- Shows all metrics:
-  - **Delivery Completion Rate** (99.48%) — clickable
-  - **Delivery Success Behaviors** (228) — clickable
-  - **Customer Delivery Experience** — clickable
-  - **Customer Escalation Defect DPMO** (0)
-  - **Customer Delivery Feedback (CDF DPMO)** (1749, may be "Fair")
-  - **Customer Delivery Feedback - Negative** (130) — clickable, this is the main one
-  - **POD Acceptance Rate** (99.68%)
-  - **Pickup Success Behaviors** (4.16)
+- Shows all metrics. **3 clickable links lead to the 3 dispute categories:**
+
+| Dashboard Link | Value | Dispute Category | Engine |
+|---|---|---|---|
+| **Delivery Completion Rate** | 99.48% | DCR/RTS | `rts-engine.ts` |
+| **Delivery Success Behaviors** | 228 | DSB/Concessions | `concession-engine.ts` |
+| **Customer Delivery Feedback - Negative** | 130 | CDF/Feedback | `feedback-engine.ts` |
+
+- Other metrics (CDF DPMO, POD Acceptance Rate, Pickup Success, etc.) are informational only
 - **"Dispute data" button** in top right corner
 
 ### Step 3: Click Into Metric (e.g., CDF Negative = 130)
