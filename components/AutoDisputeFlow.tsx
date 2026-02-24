@@ -14,7 +14,7 @@ interface AgentReport {
   failed: number
 }
 
-export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
+export function AutoDisputeFlow({ onBack }: { onBack?: () => void } = {}) {
   const [step, setStep] = useState<AutoStep>('ready')
   const [sessionId, setSessionId] = useState<string>('')
   const [liveViewUrl, setLiveViewUrl] = useState<string>('')
@@ -180,7 +180,7 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
               </svg>
               Start Auto Dispute
             </button>
-            <button onClick={onBack} className="text-sm text-neutral-400 hover:text-white transition-colors">
+            <button onClick={onBack || (() => window.location.href = "/")} className="text-sm text-neutral-400 hover:text-white transition-colors">
               ← Back to manual upload
             </button>
           </div>
@@ -325,7 +325,7 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
             >
               Run Again
             </button>
-            <button onClick={onBack} className="text-sm text-neutral-400 hover:text-white transition-colors">
+            <button onClick={onBack || (() => window.location.href = "/")} className="text-sm text-neutral-400 hover:text-white transition-colors">
               Back to manual upload
             </button>
           </div>
@@ -350,7 +350,7 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
             >
               Try Again
             </button>
-            <button onClick={onBack} className="text-sm text-neutral-400 hover:text-white transition-colors">
+            <button onClick={onBack || (() => window.location.href = "/")} className="text-sm text-neutral-400 hover:text-white transition-colors">
               Back to manual upload
             </button>
           </div>

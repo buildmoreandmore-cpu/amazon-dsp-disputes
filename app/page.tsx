@@ -73,14 +73,14 @@ export default function LandingPage() {
               Stop losing money on unfair disputes.
             </h1>
             <p className="text-neutral-400 text-lg sm:text-xl mt-8 max-w-lg leading-relaxed animate-fade-in-up animation-delay-200">
-              Automate your DSP dispute process for Concessions, Customer Feedback, and DCR/RTS. Generate professional dispute files in seconds.
+              Log in once. The agent navigates your Quality Dashboard, finds every disputable item, and submits disputes automatically.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-10 animate-fade-in-up animation-delay-400">
               <Link
                 href="/tool"
                 className="inline-flex justify-center px-8 py-4 bg-white text-black rounded-full font-semibold text-base hover:bg-neutral-200 transition-all hover:scale-105 hover:shadow-lg hover:shadow-white/10 active:scale-95"
               >
-                Start Processing Disputes
+                Launch Auto Dispute
               </Link>
               <a
                 href="#features"
@@ -188,7 +188,7 @@ export default function LandingPage() {
               <div className="text-neutral-400 text-sm mt-1">Free to Use</div>
             </div>
             <div className="scroll-animate opacity-0 translate-y-4 transition-all duration-700 delay-300">
-              <div className="text-4xl lg:text-5xl font-bold">5</div>
+              <div className="text-4xl lg:text-5xl font-bold">3</div>
               <div className="text-neutral-400 text-sm mt-1">Simple Steps</div>
             </div>
           </div>
@@ -266,36 +266,6 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* DCM Auto-Enrich Feature */}
-          <div className="mt-8 scroll-animate bg-gradient-to-r from-emerald-500/5 via-neutral-900 to-blue-500/5 border border-emerald-500/20 rounded-2xl p-8 relative overflow-hidden">
-            <div className="absolute top-4 right-4">
-              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-bold rounded-full uppercase tracking-wider">
-                New Feature
-              </span>
-            </div>
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div>
-                <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-6">
-                  <svg className="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold mb-3">Auto-Enrich with DCM Evidence</h3>
-                <p className="text-neutral-400 leading-relaxed mb-4">
-                  Stop clicking through 127 TBAs one by one. This feature automatically pulls GPS coordinates, geo-fence status, delivery distance, and photo proof from Amazon&apos;s Delivery Contrast Map for every dispute in your file.
-                </p>
-                <p className="text-neutral-500 text-sm">
-                  Your &ldquo;Additional Evidence&rdquo; column goes from empty to filled with real delivery data &mdash; the same data you&apos;d manually copy from the DCM popup, but in seconds instead of hours.
-                </p>
-              </div>
-              <div className="space-y-3">
-                <div className="flex gap-3 bg-neutral-800/50 rounded-xl p-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold">1</div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-neutral-200">Click &ldquo;Enrich&rdquo;</h4>
-                    <p className="text-xs text-neutral-500 mt-0.5">After reviewing your disputes, click the enrich button</p>
-                  </div>
-                </div>
                 <div className="flex gap-3 bg-neutral-800/50 rounded-xl p-4">
                   <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-sm font-bold">2</div>
                   <div>
@@ -329,47 +299,31 @@ export default function LandingPage() {
           <div className="text-center mb-16 scroll-animate">
             <h2 className="text-4xl sm:text-5xl font-bold">How it works.</h2>
             <p className="text-neutral-400 text-lg mt-4">
-              From raw CSV to evidence-backed dispute files in 5 steps.
+              From login to submitted disputes in 3 steps.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8">
+          <div className="grid sm:grid-cols-3 gap-8">
             {[
               {
                 step: '01',
-                title: 'Select Category',
-                description: 'Choose between Concessions, Customer Feedback, or DCR/RTS disputes.'
+                title: 'Log In',
+                description: 'Click launch, sign into Amazon Logistics with your credentials and MFA as usual.'
               },
               {
                 step: '02',
-                title: 'Upload CSV',
-                description: 'Drop your Amazon report file - we handle the parsing automatically.'
+                title: 'Agent Takes Over',
+                description: 'The agent navigates to Quality, scans every category, and identifies all disputable items automatically.'
               },
               {
                 step: '03',
-                title: 'Review Results',
-                description: 'See priority tiers, repeat drivers, and dispute recommendations.'
-              },
-              {
-                step: '04',
-                title: 'Enrich Evidence',
-                description: 'Auto-pull GPS, geo-fence, and photo data from Amazon\'s Delivery Contrast Map.',
-                highlight: true
-              },
-              {
-                step: '05',
-                title: 'Download Files',
-                description: 'Get your evidence-enriched XLSX file and Markdown summary.'
+                title: 'Disputes Submitted',
+                description: 'All valid disputes are filed with evidence. You get a full report of what was submitted.'
               }
             ].map((item, index) => (
-              <div key={item.step} className={`scroll-animate text-center hover:scale-105 transition-transform duration-300 ${index === 1 ? 'delay-100' : index === 2 ? 'delay-200' : index === 3 ? 'delay-300' : index === 4 ? 'delay-[400ms]' : ''}`}>
-                <div className={`text-6xl font-bold mb-4 transition-colors ${(item as { highlight?: boolean }).highlight ? 'text-emerald-800' : 'text-neutral-800'}`}>{item.step}</div>
-                <h3 className="text-xl font-semibold mb-2">
-                  {item.title}
-                  {(item as { highlight?: boolean }).highlight && (
-                    <span className="ml-2 inline-block px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-xs font-medium rounded-full align-middle">New</span>
-                  )}
-                </h3>
+              <div key={item.step} className={`scroll-animate text-center hover:scale-105 transition-transform duration-300 ${index === 1 ? 'delay-100' : index === 2 ? 'delay-200' : ''}`}>
+                <div className="text-6xl font-bold mb-4 text-neutral-800">{item.step}</div>
+                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                 <p className="text-neutral-400">{item.description}</p>
               </div>
             ))}
@@ -392,8 +346,8 @@ export default function LandingPage() {
                     description: 'Disputes are automatically categorized by impact level so you know which ones to focus on first.'
                   },
                   {
-                    title: 'DCM Auto-Enrichment',
-                    description: 'Automatically pulls GPS, geo-fence, distance, and photo proof from Amazon\'s Delivery Contrast Map for every TBA. No more manual lookups.'
+                    title: 'Fully Automated',
+                    description: 'The agent navigates Amazon\'s Quality Dashboard, finds all disputable items across every category, and submits them — no CSV downloads needed.'
                   },
                   {
                     title: 'Repeat Driver Detection',
