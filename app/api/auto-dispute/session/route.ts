@@ -19,9 +19,12 @@ export async function POST() {
       keepAlive: true,
     })
 
+    // Get the live debug URLs
+    const debugInfo = await bb.sessions.debug(session.id)
+
     return NextResponse.json({
       sessionId: session.id,
-      liveViewUrl: `https://www.browserbase.com/sessions/${session.id}/live-view`,
+      liveViewUrl: debugInfo.debuggerFullscreenUrl || debugInfo.debuggerUrl,
       connectUrl: session.connectUrl,
     })
   } catch (error: any) {
