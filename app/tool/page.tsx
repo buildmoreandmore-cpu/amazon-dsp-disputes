@@ -8,6 +8,7 @@ import { DisputePreview } from '@/components/DisputePreview'
 import { DownloadButtons } from '@/components/DownloadButtons'
 import { CategorySelector } from '@/components/CategorySelector'
 import { DCMEnrichButton } from '@/components/DCMEnrichButton'
+import { AutoDisputeFlow } from '@/components/AutoDisputeFlow'
 import { ChevronLeftIcon, BookOpenIcon } from '@/components/Icons'
 import type {
   DisputeCategory,
@@ -20,13 +21,13 @@ import type {
   DCMDeliveryData
 } from '@/types'
 
-type Step = 'category' | 'login' | 'upload' | 'preview' | 'download'
+type Step = 'mode' | 'auto' | 'category' | 'login' | 'upload' | 'preview' | 'download'
 
 type AnyDispute = DisputeResult | FeedbackDispute | RTSDispute
 type AnySummary = DisputeSummary | FeedbackSummary | RTSSummary
 
 export default function ToolPage() {
-  const [step, setStep] = useState<Step>('category')
+  const [step, setStep] = useState<Step>('mode')
   const [category, setCategory] = useState<DisputeCategory>('concessions')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -148,7 +149,7 @@ export default function ToolPage() {
   }
 
   const handleReset = () => {
-    setStep('category')
+    setStep('mode')
     setDisputes([])
     setSummary(null)
     setXlsxBase64('')
@@ -205,8 +206,8 @@ export default function ToolPage() {
 
       <main className="relative z-10 py-8 px-4">
         <div className="max-w-5xl mx-auto">
-          {/* Step Progress */}
-          {(
+          {/* Step Progress — only show for manual flow */}
+          {step !== 'mode' && step !== 'auto' && (
             <div className="flex items-center justify-center gap-2 sm:gap-4 mb-12">
               <StepIndicator
                 step={1}
@@ -245,6 +246,71 @@ export default function ToolPage() {
             </div>
           )}
 
+          {/* Mode Selection */}
+          {step === 'mode' && (
+            <div className="max-w-3xl mx-auto space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+                  How do you want to dispute?
+                </h1>
+                <p className="text-neutral-400">
+                  Let the agent handle it automatically, or upload CSVs manually
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Auto Dispute */}
+                <button
+                  onClick={() => setStep('auto')}
+                  className="group bg-neutral-900 border-2 border-emerald-500/30 hover:border-emerald-500 rounded-2xl p-8 text-left transition-all"
+                >
+                  <div className="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-emerald-500/20 transition-colors">
+                    <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Auto Dispute</h3>
+                  <p className="text-sm text-neutral-400 leading-relaxed">
+                    Log in once, and the agent navigates the dashboard, finds every disputable item, and submits disputes automatically.
+                  </p>
+                  <div className="mt-4 inline-flex items-center gap-1 text-sm text-emerald-400 font-medium">
+                    Recommended
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Manual Upload */}
+                <button
+                  onClick={() => setStep('category')}
+                  className="group bg-neutral-900 border-2 border-neutral-700 hover:border-neutral-500 rounded-2xl p-8 text-left transition-all"
+                >
+                  <div className="w-14 h-14 bg-neutral-800 rounded-xl flex items-center justify-center mb-5 group-hover:bg-neutral-700 transition-colors">
+                    <svg className="w-7 h-7 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Manual Upload</h3>
+                  <p className="text-sm text-neutral-400 leading-relaxed">
+                    Export CSVs from Amazon yourself, then upload them here to generate dispute files.
+                  </p>
+                  <div className="mt-4 inline-flex items-center gap-1 text-sm text-neutral-400 font-medium">
+                    Advanced
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Auto Dispute Flow */}
+          {step === 'auto' && (
+            <AutoDisputeFlow onBack={() => setStep('mode')} />
+          )}
+
           {step === 'category' && (
             <div className="max-w-4xl mx-auto space-y-8">
               <div className="text-center">
@@ -259,7 +325,13 @@ export default function ToolPage() {
                 selected={category}
                 onChange={handleCategorySelect}
               />
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center gap-4 pt-4">
+                <button
+                  onClick={() => setStep('mode')}
+                  className="px-6 py-3 text-neutral-400 hover:text-white transition-colors font-medium"
+                >
+                  ← Back
+                </button>
                 <button
                   onClick={handleContinueToLogin}
                   className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold"
