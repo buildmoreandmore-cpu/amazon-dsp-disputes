@@ -20,7 +20,7 @@ import type {
   DCMDeliveryData
 } from '@/types'
 
-type Step = 'category' | 'upload' | 'preview' | 'download'
+type Step = 'category' | 'login' | 'upload' | 'preview' | 'download'
 
 type AnyDispute = DisputeResult | FeedbackDispute | RTSDispute
 type AnySummary = DisputeSummary | FeedbackSummary | RTSSummary
@@ -103,6 +103,10 @@ export default function ToolPage() {
 
   const handleCategorySelect = (cat: DisputeCategory) => {
     setCategory(cat)
+  }
+
+  const handleContinueToLogin = () => {
+    setStep('login')
   }
 
   const handleContinueToUpload = () => {
@@ -212,20 +216,27 @@ export default function ToolPage() {
             <StepConnector completed={step !== 'category'} />
             <StepIndicator
               step={2}
+              label="Login"
+              active={step === 'login'}
+              completed={step !== 'category' && step !== 'login'}
+            />
+            <StepConnector completed={step !== 'category' && step !== 'login'} />
+            <StepIndicator
+              step={3}
               label="Upload"
               active={step === 'upload'}
               completed={step === 'preview' || step === 'download'}
             />
             <StepConnector completed={step === 'preview' || step === 'download'} />
             <StepIndicator
-              step={3}
+              step={4}
               label="Review"
               active={step === 'preview'}
               completed={step === 'download'}
             />
             <StepConnector completed={step === 'download'} />
             <StepIndicator
-              step={4}
+              step={5}
               label="Download"
               active={step === 'download'}
               completed={false}
@@ -248,10 +259,59 @@ export default function ToolPage() {
               />
               <div className="flex justify-center pt-4">
                 <button
-                  onClick={handleContinueToUpload}
+                  onClick={handleContinueToLogin}
                   className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold"
                 >
-                  Continue to Upload
+                  Continue
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 'login' && (
+            <div className="max-w-xl mx-auto space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+                  Login to Amazon Logistics
+                </h1>
+                <p className="text-neutral-400">
+                  You need to be logged into Amazon Logistics to download the CSV report files used by this tool.
+                </p>
+              </div>
+
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 space-y-4">
+                <h2 className="text-lg font-semibold text-white">Where to find your CSV exports</h2>
+                <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-300">
+                  <li>Log in at <span className="text-white font-medium">logistics.amazon.com</span></li>
+                  <li>Navigate to <span className="text-white font-medium">Scorecard</span> → <span className="text-white font-medium">Performance</span></li>
+                  <li>Click <span className="text-white font-medium">Export CSV</span> to download your report</li>
+                </ol>
+              </div>
+
+              <div className="flex flex-col items-center gap-4">
+                <button
+                  onClick={() => window.open('https://logistics.amazon.com', '_blank')}
+                  className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold inline-flex items-center gap-2"
+                >
+                  Open Amazon Logistics
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleContinueToUpload}
+                  className="px-8 py-3 bg-emerald-600 text-white rounded-full hover:bg-emerald-500 transition-colors font-semibold"
+                >
+                  I&apos;m Logged In — Continue to Upload
+                </button>
+              </div>
+
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setStep('category')}
+                  className="text-sm text-neutral-400 hover:text-white transition-colors"
+                >
+                  ← Back
                 </button>
               </div>
             </div>
