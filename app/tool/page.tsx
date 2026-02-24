@@ -1,10 +1,173 @@
 'use client'
 
+import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
+import { FileUpload } from '@/components/FileUpload'
+import { StatsDashboard } from '@/components/StatsDashboard'
+import { DisputePreview } from '@/components/DisputePreview'
+import { DownloadButtons } from '@/components/DownloadButtons'
+import { CategorySelector } from '@/components/CategorySelector'
+import { DCMEnrichButton } from '@/components/DCMEnrichButton'
 import { AutoDisputeFlow } from '@/components/AutoDisputeFlow'
 import { ChevronLeftIcon, BookOpenIcon } from '@/components/Icons'
+import type {
+  DisputeCategory,
+  DisputeResult,
+  DisputeSummary,
+  FeedbackDispute,
+  FeedbackSummary,
+  RTSDispute,
+  RTSSummary,
+  DCMDeliveryData
+} from '@/types'
+
+type Step = 'mode' | 'auto' | 'category' | 'login' | 'upload' | 'preview' | 'download'
+
+type AnyDispute = DisputeResult | FeedbackDispute | RTSDispute
+type AnySummary = DisputeSummary | FeedbackSummary | RTSSummary
 
 export default function ToolPage() {
+  const [step, setStep] = useState<Step>('mode')
+  const [category, setCategory] = useState<DisputeCategory>('concessions')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [disputes, setDisputes] = useState<AnyDispute[]>([])
+  const [summary, setSummary] = useState<AnySummary | null>(null)
+  const [xlsxBase64, setXlsxBase64] = useState<string>('')
+  const [markdownSummary, setMarkdownSummary] = useState<string>('')
+  const [outputFilename, setOutputFilename] = useState<string>('')
+  const [enriched, setEnriched] = useState(false)
+  const [isLocalhost, setIsLocalhost] = useState(false)
+
+  useEffect(() => {
+    setIsLocalhost(
+      window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    )
+  }, [])
+
+  const handleEnrichComplete = useCallback((results: Map<string, DCMDeliveryData>) => {
+    if (category !== 'feedback') return
+
+    // Apply DCM evidence to feedback disputes
+    const enrichedDisputes = (disputes as FeedbackDispute[]).map(d => {
+      const dcmData = results.get(d.trackingId)
+      if (!dcmData) return d
+
+      const parts: string[] = []
+      if (dcmData.geoFenceStatus) parts.push(`Geo-fence: ${dcmData.geoFenceStatus}`)
+      if (dcmData.distanceFromPin != null) parts.push(`Distance: ${dcmData.distanceFromPin}m`)
+      if (dcmData.gpsLatitude != null && dcmData.gpsLongitude != null) {
+        parts.push(`GPS: ${dcmData.gpsLatitude}, ${dcmData.gpsLongitude}`)
+      }
+      if (dcmData.deliveryTimestamp) parts.push(`Delivered: ${dcmData.deliveryTimestamp}`)
+      if (dcmData.podStatus) parts.push(`POD: ${dcmData.podStatus}`)
+      else if (dcmData.photoUrl) parts.push('POD: Available')
+
+      const additionalEvidence = parts.join(' | ')
+
+      return { ...d, additionalEvidence, dcmData }
+    })
+
+    setDisputes(enrichedDisputes)
+    setEnriched(true)
+
+    // Re-generate XLSX with evidence
+    fetch('/api/process-feedback', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ disputes: enrichedDisputes }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.xlsxBase64) setXlsxBase64(data.xlsxBase64)
+      })
+      .catch(() => {})
+  }, [category, disputes])
+
+  const getApiEndpoint = (cat: DisputeCategory): string => {
+    const endpoints: Record<DisputeCategory, string> = {
+      concessions: '/api/process-concessions',
+      feedback: '/api/process-feedback',
+      rts: '/api/process-rts'
+    }
+    return endpoints[cat]
+  }
+
+  const getCategoryLabel = (cat: DisputeCategory): string => {
+    const labels: Record<DisputeCategory, string> = {
+      concessions: 'Concessions (DSB)',
+      feedback: 'Customer Feedback (CDF)',
+      rts: 'Delivery Completion (DCR/RTS)'
+    }
+    return labels[cat]
+  }
+
+  const handleCategorySelect = (cat: DisputeCategory) => {
+    setCategory(cat)
+  }
+
+  const handleContinueToLogin = () => {
+    setStep('login')
+  }
+
+  const handleContinueToUpload = () => {
+    setStep('upload')
+  }
+
+  const handleFileSelect = async (file: File) => {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch(getApiEndpoint(category), {
+        method: 'POST',
+        body: formData
+      })
+
+      const result = await response.json()
+
+      if (!result.success || !result.data) {
+        setError(result.error || 'An error occurred while processing the file')
+        setIsLoading(false)
+        return
+      }
+
+      setDisputes(result.data.disputes)
+      setSummary(result.data.summary)
+      setXlsxBase64(result.data.xlsxBase64)
+      setMarkdownSummary(result.data.markdownSummary)
+      setOutputFilename(result.data.outputFilename)
+      setStep('preview')
+    } catch (err) {
+      setError('Failed to process file. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleReset = () => {
+    setStep('mode')
+    setDisputes([])
+    setSummary(null)
+    setXlsxBase64('')
+    setMarkdownSummary('')
+    setOutputFilename('')
+    setError(null)
+  }
+
+  const handleBackToUpload = () => {
+    setStep('upload')
+    setDisputes([])
+    setSummary(null)
+    setXlsxBase64('')
+    setMarkdownSummary('')
+    setOutputFilename('')
+    setError(null)
+  }
+
   return (
     <div className="min-h-screen bg-neutral-950 text-white">
       {/* Dot Grid Background */}
@@ -43,9 +206,359 @@ export default function ToolPage() {
 
       <main className="relative z-10 py-8 px-4">
         <div className="max-w-5xl mx-auto">
-          <AutoDisputeFlow />
+          {/* Step Progress — only show for manual flow */}
+          {step !== 'mode' && step !== 'auto' && (
+            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-12">
+              <StepIndicator
+                step={1}
+                label="Category"
+                active={step === 'category'}
+                completed={step !== 'category'}
+              />
+              <StepConnector completed={step !== 'category'} />
+              <StepIndicator
+                step={2}
+                label="Login"
+                active={step === 'login'}
+                completed={step !== 'category' && step !== 'login'}
+              />
+              <StepConnector completed={step !== 'category' && step !== 'login'} />
+              <StepIndicator
+                step={3}
+                label="Upload"
+                active={step === 'upload'}
+                completed={step === 'preview' || step === 'download'}
+              />
+              <StepConnector completed={step === 'preview' || step === 'download'} />
+              <StepIndicator
+                step={4}
+                label="Review"
+                active={step === 'preview'}
+                completed={step === 'download'}
+              />
+              <StepConnector completed={step === 'download'} />
+              <StepIndicator
+                step={5}
+                label="Download"
+                active={step === 'download'}
+                completed={false}
+              />
+            </div>
+          )}
+
+          {/* Mode Selection */}
+          {step === 'mode' && (
+            <div className="max-w-3xl mx-auto space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+                  How do you want to dispute?
+                </h1>
+                <p className="text-neutral-400">
+                  Let the agent handle it automatically, or upload CSVs manually
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Auto Dispute */}
+                <button
+                  onClick={() => setStep('auto')}
+                  className="group bg-neutral-900 border-2 border-emerald-500/30 hover:border-emerald-500 rounded-2xl p-8 text-left transition-all"
+                >
+                  <div className="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-emerald-500/20 transition-colors">
+                    <svg className="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Auto Dispute</h3>
+                  <p className="text-sm text-neutral-400 leading-relaxed">
+                    Log in once, and the agent navigates the dashboard, finds every disputable item, and submits disputes automatically.
+                  </p>
+                  <div className="mt-4 inline-flex items-center gap-1 text-sm text-emerald-400 font-medium">
+                    Recommended
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Manual Upload */}
+                <button
+                  onClick={() => setStep('category')}
+                  className="group bg-neutral-900 border-2 border-neutral-700 hover:border-neutral-500 rounded-2xl p-8 text-left transition-all"
+                >
+                  <div className="w-14 h-14 bg-neutral-800 rounded-xl flex items-center justify-center mb-5 group-hover:bg-neutral-700 transition-colors">
+                    <svg className="w-7 h-7 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Manual Upload</h3>
+                  <p className="text-sm text-neutral-400 leading-relaxed">
+                    Export CSVs from Amazon yourself, then upload them here to generate dispute files.
+                  </p>
+                  <div className="mt-4 inline-flex items-center gap-1 text-sm text-neutral-400 font-medium">
+                    Advanced
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Auto Dispute Flow */}
+          {step === 'auto' && (
+            <AutoDisputeFlow onBack={() => setStep('mode')} />
+          )}
+
+          {step === 'category' && (
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+                  Select Dispute Category
+                </h1>
+                <p className="text-neutral-400">
+                  Choose the type of disputes you want to process
+                </p>
+              </div>
+              <CategorySelector
+                selected={category}
+                onChange={handleCategorySelect}
+              />
+              <div className="flex justify-center gap-4 pt-4">
+                <button
+                  onClick={() => setStep('mode')}
+                  className="px-6 py-3 text-neutral-400 hover:text-white transition-colors font-medium"
+                >
+                  ← Back
+                </button>
+                <button
+                  onClick={handleContinueToLogin}
+                  className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 'login' && (
+            <div className="max-w-xl mx-auto space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+                  Login to Amazon Logistics
+                </h1>
+                <p className="text-neutral-400">
+                  You need to be logged into Amazon Logistics to download the CSV report files used by this tool.
+                </p>
+              </div>
+
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 space-y-4">
+                <h2 className="text-lg font-semibold text-white">Where to find your CSV exports</h2>
+                <ol className="list-decimal list-inside space-y-2 text-sm text-neutral-300">
+                  <li>Log in at <span className="text-white font-medium">logistics.amazon.com</span></li>
+                  <li>Navigate to <span className="text-white font-medium">Scorecard</span> → <span className="text-white font-medium">Performance</span></li>
+                  <li>Click <span className="text-white font-medium">Export CSV</span> to download your report</li>
+                </ol>
+              </div>
+
+              <div className="flex flex-col items-center gap-4">
+                <button
+                  onClick={() => window.open('https://logistics.amazon.com', '_blank')}
+                  className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold inline-flex items-center gap-2"
+                >
+                  Open Amazon Logistics
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </button>
+                <button
+                  onClick={handleContinueToUpload}
+                  className="px-8 py-3 bg-emerald-600 text-white rounded-full hover:bg-emerald-500 transition-colors font-semibold"
+                >
+                  I&apos;m Logged In — Continue to Upload
+                </button>
+              </div>
+
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setStep('category')}
+                  className="text-sm text-neutral-400 hover:text-white transition-colors"
+                >
+                  ← Back
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 'upload' && (
+            <div className="max-w-xl mx-auto space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+                  Upload Your CSV File
+                </h1>
+                <p className="text-neutral-400">
+                  Drop your Amazon report file to generate disputes
+                </p>
+              </div>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+                <p className="text-sm text-neutral-300">
+                  Processing: <span className="font-semibold text-white">{getCategoryLabel(category)}</span>
+                </p>
+                <button
+                  onClick={() => setStep('category')}
+                  className="text-sm text-neutral-400 hover:text-white underline mt-1"
+                >
+                  Change category
+                </button>
+              </div>
+              <FileUpload
+                onFileSelect={handleFileSelect}
+                isLoading={isLoading}
+                error={error}
+              />
+            </div>
+          )}
+
+          {step === 'preview' && summary && (
+            <div className="space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+                  Review Your Disputes
+                </h1>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-full">
+                  <span className="text-sm text-neutral-300">{getCategoryLabel(category)}</span>
+                </div>
+              </div>
+              <StatsDashboard summary={summary} category={category} />
+              <DisputePreview disputes={disputes} category={category} />
+
+              {/* Next step: Enrich or Skip — for feedback on localhost */}
+              {category === 'feedback' && !enriched && isLocalhost ? (
+                <div className="space-y-6 pt-6 border-t border-neutral-800">
+                  <div className="text-center">
+                    <h2 className="text-xl font-bold text-white mb-2">What would you like to do next?</h2>
+                    <p className="text-sm text-neutral-400">
+                      You can enrich your disputes with real delivery evidence from Amazon, or skip straight to download.
+                    </p>
+                  </div>
+
+                  <DCMEnrichButton
+                    trackingIds={(disputes as FeedbackDispute[]).map(d => d.trackingId)}
+                    onEnrichComplete={handleEnrichComplete}
+                  />
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 h-px bg-neutral-800" />
+                    <span className="text-xs text-neutral-600 uppercase tracking-wider">or</span>
+                    <div className="flex-1 h-px bg-neutral-800" />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <button
+                      onClick={handleBackToUpload}
+                      className="px-4 py-2 text-neutral-400 hover:text-white transition-colors font-medium text-sm"
+                    >
+                      Upload a different file
+                    </button>
+                    <button
+                      onClick={() => setStep('download')}
+                      className="px-6 py-3 bg-neutral-800 text-white rounded-full hover:bg-neutral-700 transition-colors font-medium border border-neutral-700"
+                    >
+                      Skip &amp; Continue to Download
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between pt-6 border-t border-neutral-800">
+                  <button
+                    onClick={handleBackToUpload}
+                    className="px-4 py-2 text-neutral-400 hover:text-white transition-colors font-medium"
+                  >
+                    Upload a different file
+                  </button>
+                  <button
+                    onClick={() => setStep('download')}
+                    className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold"
+                  >
+                    {enriched ? 'Download Enriched File' : 'Continue to Download'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {step === 'download' && summary && (
+            <div className="space-y-8">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+                  Download Your Files
+                </h1>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <span className="text-sm text-green-400 font-medium">Ready for download</span>
+                </div>
+              </div>
+              <StatsDashboard summary={summary} category={category} />
+              <DownloadButtons
+                xlsxBase64={xlsxBase64}
+                markdownSummary={markdownSummary}
+                outputFilename={outputFilename}
+              />
+
+              <div className="pt-6 border-t border-neutral-800">
+                <button
+                  onClick={handleReset}
+                  className="px-4 py-2 text-neutral-400 hover:text-white transition-colors font-medium"
+                >
+                  Process another file
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
+  )
+}
+
+function StepIndicator({
+  step,
+  label,
+  active,
+  completed
+}: {
+  step: number
+  label: string
+  active: boolean
+  completed: boolean
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all border-2 ${
+          active
+            ? 'bg-white text-black border-white'
+            : completed
+              ? 'bg-green-500 text-white border-green-500'
+              : 'bg-transparent text-neutral-500 border-neutral-700'
+        }`}
+      >
+        {completed ? '✓' : step}
+      </div>
+      <span
+        className={`text-sm font-medium hidden sm:block ${
+          active ? 'text-white' : completed ? 'text-green-400' : 'text-neutral-500'
+        }`}
+      >
+        {label}
+      </span>
+    </div>
+  )
+}
+
+function StepConnector({ completed }: { completed: boolean }) {
+  return (
+    <div className={`w-8 sm:w-12 h-0.5 transition-colors ${completed ? 'bg-green-500' : 'bg-neutral-800'}`} />
   )
 }
