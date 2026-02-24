@@ -42,7 +42,7 @@ export default function ToolPage() {
       </header>
 
       <main className="relative z-10 py-8 px-4">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <AutoDisputeFlow onBack={() => window.location.href = '/'} />
         </div>
       </main>

@@ -195,44 +195,58 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
         </div>
       )}
 
-      {/* Login step */}
+      {/* Login step — embedded browser */}
       {step === 'login' && (
-        <div className="space-y-6">
-          <div className="bg-neutral-900 border border-emerald-500/20 rounded-2xl p-6 space-y-4">
+        <div className="space-y-4">
+          {/* Status bar */}
+          <div className="flex items-center justify-between bg-neutral-900 border border-emerald-500/20 rounded-xl px-5 py-3">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-sm font-medium text-emerald-400">Secure browser ready</span>
+              <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="text-sm font-medium text-emerald-400">Secure browser active</span>
             </div>
-            <p className="text-sm text-neutral-300">
-              A secure cloud browser has been created. Click below to open it, then log in to Amazon Logistics and enter your one-time password.
-            </p>
-            <p className="text-xs text-neutral-500">
-              Your credentials are entered directly in an isolated browser — they never pass through our servers.
-            </p>
+            <div className="flex items-center gap-3">
+              <a
+                href={liveViewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors flex items-center gap-1"
+              >
+                Open in new tab
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </div>
           </div>
 
-          <div className="flex flex-col items-center gap-4">
-            <a
-              href={liveViewUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold inline-flex items-center gap-2"
-            >
-              Open Secure Browser
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
+          {/* Embedded browser iframe */}
+          <div className="relative rounded-xl overflow-hidden border border-neutral-800 bg-black" style={{ height: '70vh', minHeight: '500px' }}>
+            <iframe
+              src={liveViewUrl}
+              className="w-full h-full border-0"
+              allow="clipboard-read; clipboard-write"
+              sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+            />
+          </div>
 
+          {/* Action bar */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <button onClick={() => setStep('ready')} className="text-sm text-neutral-500 hover:text-white transition-colors">
+                Cancel
+              </button>
+            </div>
+            <p className="text-xs text-neutral-600 hidden sm:block">
+              Log in to Amazon Logistics, then click the button →
+            </p>
             <button
               onClick={handleLoginComplete}
-              className="px-10 py-4 bg-emerald-500 text-white rounded-full hover:bg-emerald-400 transition-colors font-semibold text-lg"
+              className="px-8 py-3 bg-emerald-500 text-white rounded-full hover:bg-emerald-400 transition-colors font-semibold flex items-center gap-2"
             >
               I&apos;m Logged In — Start Agent
-            </button>
-
-            <button onClick={() => setStep('ready')} className="text-sm text-neutral-400 hover:text-white transition-colors">
-              Cancel
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </button>
           </div>
         </div>
@@ -257,20 +271,31 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
               </div>
             </div>
 
-            {/* Live view link */}
+            {/* Embedded live view */}
             {liveViewUrl && (
-              <div className="mt-6 pt-4 border-t border-neutral-800 text-center">
-                <a
-                  href={liveViewUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-neutral-400 hover:text-emerald-400 transition-colors inline-flex items-center gap-1"
-                >
-                  Watch the agent live
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
+              <div className="mt-6 pt-4 border-t border-neutral-800">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Live View</span>
+                  <a
+                    href={liveViewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors flex items-center gap-1"
+                  >
+                    Open in new tab
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+                <div className="rounded-xl overflow-hidden border border-neutral-700 bg-black" style={{ height: '50vh', minHeight: '350px' }}>
+                  <iframe
+                    src={liveViewUrl}
+                    className="w-full h-full border-0"
+                    allow="clipboard-read; clipboard-write"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                  />
+                </div>
               </div>
             )}
           </div>
