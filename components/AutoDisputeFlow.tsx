@@ -181,7 +181,7 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
               Start Auto Dispute
             </button>
             <button onClick={onBack} className="text-sm text-neutral-400 hover:text-white transition-colors">
-              ← Back to manual upload
+              ← ← Back
             </button>
           </div>
         </div>
@@ -326,7 +326,7 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
               Run Again
             </button>
             <button onClick={onBack} className="text-sm text-neutral-400 hover:text-white transition-colors">
-              Back to manual upload
+              ← Back
             </button>
           </div>
         </div>
@@ -351,7 +351,7 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
               Try Again
             </button>
             <button onClick={onBack} className="text-sm text-neutral-400 hover:text-white transition-colors">
-              Back to manual upload
+              ← Back
             </button>
           </div>
         </div>
