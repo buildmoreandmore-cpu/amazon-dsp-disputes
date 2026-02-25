@@ -17,10 +17,34 @@ export async function POST() {
     }
 
     const bb = new Browserbase({ apiKey })
-    const session = await bb.sessions.create({
-      projectId,
-      keepAlive: true,
-    })
+
+    // Retry logic for rate limits
+    let session: any
+    let attempts = 0
+    while (attempts < 3) {
+      try {
+        session = await bb.sessions.create({
+          projectId,
+          keepAlive: true,
+        })
+        break
+      } catch (e: any) {
+        if (e.status === 429 && attempts < 2) {
+          attempts++
+          // Wait before retrying (60s for rate limit window)
+          await new Promise(r => setTimeout(r, 15000 * attempts))
+          continue
+        }
+        throw e
+      }
+    }
+
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait a minute and try again.' },
+        { status: 429 }
+      )
+    }
 
     // Connect via Playwright and navigate to Amazon Logistics login
     const browser = await chromium.connectOverCDP(

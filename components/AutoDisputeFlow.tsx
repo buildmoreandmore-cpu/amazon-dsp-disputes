@@ -40,7 +40,9 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
       const data = await res.json()
 
       if (data.error) {
-        setError(data.error)
+        setError(data.error.includes('429') || data.error.includes('rate')
+          ? 'Too many requests — please wait a minute and try again.'
+          : data.error)
         setStep('error')
         return
       }
