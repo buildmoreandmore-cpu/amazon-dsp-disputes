@@ -56,9 +56,9 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
     }
   }
 
-  const handleLoginComplete = async () => {
+  const handleLoginComplete = async (retryCount = 0) => {
     setStep('running')
-    setStatusText('Agent is navigating to the Quality Dashboard...')
+    setStatusText(retryCount > 0 ? `Retrying connection (attempt ${retryCount + 1})...` : 'Connecting to browser session...')
 
     try {
       const res = await fetch('/api/auto-dispute/run', {
@@ -69,10 +69,18 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
       const data = await res.json()
 
       if (data.error) {
+        // Auto-retry once on connection failures
+        if (retryCount < 2 && (data.error.includes('connect') || data.error.includes('expired') || data.error.includes('timeout'))) {
+          setStatusText(`Connection issue — retrying in 3 seconds (attempt ${retryCount + 2})...`)
+          await new Promise(r => setTimeout(r, 3000))
+          return handleLoginComplete(retryCount + 1)
+        }
         setError(data.error)
         setStep('error')
         return
       }
+
+      setStatusText('Agent is navigating to the Quality Dashboard...')
 
       // Poll for completion
       if (data.jobId) {
@@ -82,7 +90,12 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
         setStep('done')
       }
     } catch (e: any) {
-      setError(e.message || 'Agent failed to start')
+      if (retryCount < 2) {
+        setStatusText(`Network error — retrying in 3 seconds (attempt ${retryCount + 2})...`)
+        await new Promise(r => setTimeout(r, 3000))
+        return handleLoginComplete(retryCount + 1)
+      }
+      setError(e.message || 'Agent failed to start. Check your connection and try again.')
       setStep('error')
     }
   }
@@ -380,14 +393,22 @@ export function AutoDisputeFlow({ onBack }: { onBack: () => void }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <p className="text-red-400">{error}</p>
+            <p className="text-red-400 text-sm">{error}</p>
           </div>
           <div className="flex flex-col items-center gap-3">
+            {sessionId && (
+              <button
+                onClick={() => { setError(''); handleLoginComplete(); }}
+                className="px-8 py-3 bg-emerald-500 text-white rounded-full hover:bg-emerald-400 transition-colors font-semibold"
+              >
+                Retry with Same Session
+              </button>
+            )}
             <button
-              onClick={() => { setStep('ready'); setError(''); }}
+              onClick={() => { setStep('ready'); setError(''); setSessionId(''); }}
               className="px-8 py-3 bg-white text-black rounded-full hover:bg-neutral-200 transition-colors font-semibold"
             >
-              Try Again
+              Start New Session
             </button>
             <button onClick={onBack} className="text-sm text-neutral-400 hover:text-white transition-colors">
               ← Back

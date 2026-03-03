@@ -30,44 +30,100 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing sessionId or API key' }, { status: 400 })
     }
 
+    console.log(`[DSP Agent] Connecting to Browserbase session: ${sessionId}`)
+
     // Connect to the user's authenticated Browserbase session
-    const browser = await chromium.connectOverCDP(
-      `wss://connect.browserbase.com?apiKey=${apiKey}&sessionId=${sessionId}`
-    )
+    let browser
+    try {
+      browser = await chromium.connectOverCDP(
+        `wss://connect.browserbase.com?apiKey=${apiKey}&sessionId=${sessionId}`,
+        { timeout: 30000 }
+      )
+      console.log('[DSP Agent] Connected to browser via CDP')
+    } catch (cdpError: any) {
+      console.error('[DSP Agent] CDP connection failed:', cdpError.message)
+      return NextResponse.json({ 
+        error: `Failed to connect to browser session. It may have expired. Try starting a new session. (${cdpError.message})` 
+      }, { status: 500 })
+    }
 
     const context = browser.contexts()[0]
+    if (!context) {
+      await browser.close()
+      return NextResponse.json({ error: 'No browser context found. Session may have closed.' }, { status: 500 })
+    }
+
     const page = context.pages()[0] || await context.newPage()
+    const currentUrl = page.url()
+    console.log(`[DSP Agent] Current page URL: ${currentUrl}`)
+
+    // Verify user is actually logged in
+    if (currentUrl.includes('signin') || currentUrl.includes('ap/signin') || currentUrl === 'about:blank') {
+      await browser.close()
+      return NextResponse.json({ 
+        error: `You don't appear to be logged in yet. Current page: ${currentUrl}. Please complete login first, then click "I'm Logged In".` 
+      }, { status: 400 })
+    }
+
+    console.log('[DSP Agent] Login verified, starting agent...')
 
     const allEvidence: TrackingEvidence[] = []
     const errors: string[] = []
 
     // ── Step 1: Navigate to Quality Dashboard ──
-    await page.goto(`${DSP_BASE}/performance/quality`, { waitUntil: 'networkidle', timeout: 30000 })
+    console.log('[DSP Agent] Step 1: Navigating to Quality Dashboard...')
+    try {
+      await page.goto(`${DSP_BASE}/performance/quality`, { waitUntil: 'networkidle', timeout: 30000 })
+    } catch (navErr: any) {
+      console.error('[DSP Agent] Navigation failed, trying domcontentloaded:', navErr.message)
+      await page.goto(`${DSP_BASE}/performance/quality`, { waitUntil: 'domcontentloaded', timeout: 30000 })
+    }
     await page.waitForTimeout(3000)
+
+    // Check if we got redirected to login
+    const postNavUrl = page.url()
+    console.log(`[DSP Agent] After navigation URL: ${postNavUrl}`)
+    if (postNavUrl.includes('signin') || postNavUrl.includes('ap/signin')) {
+      await browser.close()
+      return NextResponse.json({ 
+        error: 'Session expired — Amazon redirected to login. Please start a new session and log in again.' 
+      }, { status: 400 })
+    }
+
+    // Take a screenshot for debugging
+    const pageTitle = await page.title().catch(() => 'unknown')
+    console.log(`[DSP Agent] Page title: ${pageTitle}`)
 
     // If we landed on Performance Summary instead, click Quality Dashboard link
     const qualityLink = page.locator('a:has-text("Quality Dashboard"), a[href*="quality"]').first()
     if (await qualityLink.isVisible().catch(() => false)) {
+      console.log('[DSP Agent] Found Quality Dashboard link, clicking...')
       await qualityLink.click()
       await page.waitForTimeout(3000)
     }
 
     // ── Step 2: Go back one week ──
+    console.log('[DSP Agent] Step 2: Going back one week...')
     const prevWeekBtn = page.locator('button[aria-label*="previous"], button[aria-label*="Previous"]').first()
     if (await prevWeekBtn.isVisible().catch(() => false)) {
       await prevWeekBtn.click()
       await page.waitForTimeout(3000)
+      console.log('[DSP Agent] Clicked previous week button')
     } else {
       // Try the `<` chevron button near the week selector
       const chevronLeft = page.locator('.week-nav button:first-child, [class*="navigation"] button:first-child').first()
       if (await chevronLeft.isVisible().catch(() => false)) {
         await chevronLeft.click()
         await page.waitForTimeout(3000)
+        console.log('[DSP Agent] Clicked chevron left button')
+      } else {
+        console.log('[DSP Agent] No previous week button found')
       }
     }
 
     // Get the current week label
     const weekLabel = await page.locator('text=/Week \\d+/').first().textContent().catch(() => 'Previous Week')
+    console.log(`[DSP Agent] Week label: ${weekLabel}`)
 
     // ── Step 3: Click into each of the 3 disputable metric links ──
     // From screenshots: the blue clickable numbers on Quality Dashboard
